@@ -5,6 +5,8 @@ import { StatusBar } from 'expo-status-bar';
 import { theme } from './Theme/Theme';
 import * as Font from 'expo-font';
 import { Main } from './Screens/Main';
+import { TamaguiProvider } from 'tamagui'
+import config from './tamagui.config'
 
 const Regular = require('./Theme/Fonts/SourceSans3-Medium.ttf');
 const Thin = require('./Theme/Fonts/SourceSans3-Light.ttf');
@@ -35,6 +37,8 @@ export default function App() {
 		);
 
   return (
-    <Main/>
+    <TamaguiProvider config={config}>
+      <Main/>
+    </TamaguiProvider>
   );
 }
