@@ -1,21 +1,31 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'; 
-
-import { SourceSansPro_200ExtraLight, SourceSansPro_400Regular, useFonts } from '@expo-google-fonts/source-sans-pro';
-import { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { useFonts, SourceSansPro_200ExtraLight, SourceSansPro_400Regular } from '@expo-google-fonts/source-sans-pro';
+import { StatusBar } from 'expo-status-bar';
 import { theme } from './Theme/Theme';
+import * as Font from 'expo-font';
 import { Main } from './Screens/Main';
 
-
-
+const Regular = require('./Theme/Fonts/SourceSans3-Medium.ttf');
+const Thin = require('./Theme/Fonts/SourceSans3-Light.ttf');
+const Bold = require('./Theme/Fonts/SourceSans3-Bold.ttf');
 
 export default function App() {
+  const [loading, setLoading] = useState(true);
 
-const [loading, setLoading] = useState<boolean>(false)
+  useEffect(() => {
+    async function loadFonts() {
+      await Font.loadAsync({
+        'SourceSans3-Medium': Regular,
+        'SourceSans3-Light': Thin,
+        'SourceSans3-Bold': Bold,
+      });
 
-useFonts({
-    SourceSansPro_200ExtraLight,
-    SourceSansPro_400Regular,
-  });
+      setLoading(false);
+    }
+
+    loadFonts();
+  }, []);
 
   if (loading)
 		return (
@@ -28,4 +38,3 @@ useFonts({
     <Main/>
   );
 }
-

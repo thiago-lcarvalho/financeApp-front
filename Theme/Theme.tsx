@@ -10,7 +10,8 @@ export const theme = {
         headerMenu: "rgba(67, 80, 192, 0.1);",
       },
     fontFamily: {
-        Regular: 'SourceSansPro_400Regular',
-        Thin: 'SourceSansPro_200ExtraLight',
+        Regular: 'SourceSans3-Medium',
+        Thin: 'SourceSans3-Light',
+        Bold: 'SourceSans3-Bold',
     },
 }
