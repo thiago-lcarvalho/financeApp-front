@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { theme } from './Theme/Theme';
 import * as Font from 'expo-font';
 import { Main } from './Screens/Main';
-import { TamaguiProvider } from 'tamagui'
+import { TamaguiProvider, Spinner } from 'tamagui'
 import config from './tamagui.config'
 
 const Regular = require('./Theme/Fonts/SourceSans3-Medium.ttf');
@@ -32,7 +32,7 @@ export default function App() {
   if (loading)
 		return (
 			<View style={{ backgroundColor: theme.color.background, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-				<ActivityIndicator size={'large'} color={theme.color.primary} />
+				<ActivityIndicator size={'large'} color={theme.color.primary}/>
 			</View>
 		);
 
