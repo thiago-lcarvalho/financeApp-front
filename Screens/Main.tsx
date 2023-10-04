@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View } from 'react-native'; 
 import { Button, Sheet } from 'tamagui';
-import { CalendarRange, ScanFace, ArrowUpCircle, ArrowDownCircle, X, Check } from '@tamagui/lucide-icons';
+import { CalendarRange, Contact, ArrowUpCircle, ArrowDownCircle, X, Check } from '@tamagui/lucide-icons';
 import { useState } from 'react';
 import { theme } from '../Theme/Theme';
 
@@ -16,16 +16,13 @@ export function Main() {
     proAccount: true,
     tracking: 'monthly',
     lastBalance: 500.17,
-
+    currency: 'BRL',
   }
 
   const balanceStatus = userData.currentBalance > userData.lastBalance ? 'positive' : 'negative';
   const balanceSurplus = Math.round(Math.abs(userData.currentBalance - userData.lastBalance) * 1e2) / 1e2;
   const newBalancePercentage = Math.round(((balanceSurplus / userData.lastBalance) * 100) * 1e2) / 1e2;
-  const formattedBalance = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(userData.currentBalance);
+  const formattedBalance = new Intl.NumberFormat().format(userData.currentBalance);
 
   const [openExpenseSheet, setOpenExpenseSheet] = useState(false);
   const [openIncomeSheet, setOpenIncomeSheet] = useState(false);
@@ -77,18 +74,33 @@ export function Main() {
         <View
           style={{justifyContent: 'space-between', flexDirection: 'row', width: '85%', marginTop: 32}}
         >
-        <Button pressStyle={{backgroundColor: '$gray1Dark'}} bg="$gray3Dark" width="$5" size="$6" icon={<ScanFace color="$yellow10Light" size="$4"/>}/>
+        <Button pressStyle={{backgroundColor: '$gray1Dark'}} bg="$gray3Dark" width="$5" size="$6" icon={<Contact color="$yellow10Light" size="$4"/>}/>
         <Button pressStyle={{backgroundColor: '$gray1Dark'}} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color="$yellow10Light" size="$4"/>}/>
         </View>
         <View style={{
           height: '70%',
           justifyContent: 'center',
         }}>
+           <View style={{
+            backgroundColor: theme.color.gray,
+            borderRadius: 10,
+            paddingHorizontal: 10,
+            alignSelf: 'flex-start',
+          }}>
+              <Text style={{
+                color: theme.color.background,
+                fontSize: 16,
+                fontFamily: theme.fontFamily.Thin,
+                textAlign: 'left'
+              }}>
+                {userData.currency}
+              </Text>
+          </View>
           <View style={{
             alignItems: 'flex-end',
             flexDirection: 'column',
           }}>
-          <Text style={{ height: 68, color: theme.color.primary ,fontFamily: theme.fontFamily.Thin, fontSize: 56}}>
+          <Text style={{ color: theme.color.primary ,fontFamily: theme.fontFamily.Thin, fontSize: 80}}>
               {formattedBalance}
           </Text>
           <View style={{
@@ -98,13 +110,13 @@ export function Main() {
           }}>
               <Text style={{
                 color: theme.color[balanceStatus],
-                fontSize: 18,
+                fontSize: 16,
                 fontFamily: theme.fontFamily.Thin,
                 textAlign: 'center'
               }}>
                 {balanceStatus === 'positive' ? '+ ' : '- '}{balanceSurplus}{` (${newBalancePercentage}%)`}
               </Text>
-              </View>
+          </View>
           </View>
         </View>
         <View
