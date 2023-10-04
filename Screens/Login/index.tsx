@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { theme } from "../../Theme/Theme";
-import { Button, Input } from 'tamagui';
-import { Eye, EyeOff } from '@tamagui/lucide-icons';
+import { Button, Input, Text } from 'tamagui';
+import { Eye, EyeOff, Aperture } from '@tamagui/lucide-icons';
 
 
 
@@ -24,15 +24,17 @@ export function Login() {
             justifyContent: 'center',
             alignItems: 'center',
         }}>
+            <Button size={"$10"} transparent disabled icon={Aperture} />
             <View style={{
                 flexDirection: 'column',
                 gap: 12,
                 alignContent: 'center',
             }}>
-                <Input width={"$20"} placeholder="E-mail" style={{ fontFamily: theme.fontFamily.Regular }} />
+                <Input selectionColor={theme.color.black} width={"$20"} placeholder="E-mail" style={{ fontFamily: theme.fontFamily.Regular }} />
                 <View>
                     <View style={{ flexDirection: 'row' }}>
                         <Input
+                            selectionColor={theme.color.black}
                             width="$20"
                             secureTextEntry={!showPassword}
                             placeholder="Senha"
@@ -46,19 +48,43 @@ export function Login() {
                             position="absolute"
                             right={0}
                             width={"$1"}
-                            style={{ backgroundColor: 'transparent' }}
+                            style={{ backgroundColor: 'transparent', }}
                             icon={showPassword ? Eye : EyeOff}
                         />
                     </View>
                 </View>
+                <Text onPress={() => {
+                    alert('Esqueceu sua senha?');
+                }} textDecorationLine="underline" >
+                    Esqueceu sua senha?
+                </Text>
                 <Button
                     width="$20"
-                    bg="#111111"
-                    color="#FFFFFF"
+                    bg={theme.color.black}
+                    color={theme.color.white}
+                    pressStyle={{ backgroundColor: "$color.gray3Dark" }}
                     style={{ fontFamily: theme.fontFamily.Regular }}
                 >
                     Entrar
                 </Button>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        gap: 2,
+                        justifyContent: 'center',
+                    }}
+                >
+                    <Text onPress={() => {
+                        alert('Esqueceu sua senha?');
+                    }}>
+                        Primeira vez?
+                    </Text>
+                    <Text onPress={() => {
+                        alert('Criar uma conta.');
+                    }} textDecorationLine="underline" >
+                        Criar uma conta.
+                    </Text>
+                </View>
             </View>
         </View>
     )
