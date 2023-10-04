@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View } from 'react-native'; 
 import { Button, Sheet } from 'tamagui';
-import { CalendarRange, ScanFace, ArrowUpCircle, ArrowDownCircle, X, Check } from '@tamagui/lucide-icons';
-import { useState } from 'react';
+import { CalendarRange, Contact, ArrowUpCircle, ArrowDownCircle, X, Check } from '@tamagui/lucide-icons';
+import { useEffect, useState } from 'react';
 import { theme } from '../Theme/Theme';
 
 export function Main() {
@@ -18,7 +18,6 @@ export function Main() {
     lastBalance: 500.17,
 
   }
-
   const balanceStatus = userData.currentBalance > userData.lastBalance ? 'positive' : 'negative';
   const balanceSurplus = Math.round(Math.abs(userData.currentBalance - userData.lastBalance) * 1e2) / 1e2;
   const newBalancePercentage = Math.round(((balanceSurplus / userData.lastBalance) * 100) * 1e2) / 1e2;
@@ -31,6 +30,7 @@ export function Main() {
   const [openIncomeSheet, setOpenIncomeSheet] = useState(false);
   const [expenseValue, setExpenseValue] = useState(0);
   const [incomeValue, setIncomeValue] = useState(0);
+  const [balance, setBalance] = useState(null);
 
   const handleInputChange = (text: any) => {
     const newValue = parseFloat(text);
@@ -77,7 +77,7 @@ export function Main() {
         <View
           style={{justifyContent: 'space-between', flexDirection: 'row', width: '85%', marginTop: 32}}
         >
-        <Button pressStyle={{backgroundColor: '$gray1Dark'}} bg="$gray3Dark" width="$5" size="$6" icon={<ScanFace color="$yellow10Light" size="$4"/>}/>
+        <Button pressStyle={{backgroundColor: '$gray1Dark'}} bg="$gray3Dark" width="$5" size="$6" icon={<Contact color="$yellow10Light" size="$4"/>}/>
         <Button pressStyle={{backgroundColor: '$gray1Dark'}} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color="$yellow10Light" size="$4"/>}/>
         </View>
         <View style={{
