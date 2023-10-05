@@ -3,10 +3,12 @@ import { ActivityIndicator, View } from "react-native";
 import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { Eye, EyeOff, Aperture, ArrowRight } from '@tamagui/lucide-icons';
+import { useNavigation } from "@react-navigation/native";
 
 
 
 export function Login() {
+    const navigation = useNavigation<any>()
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -67,7 +69,7 @@ export function Login() {
                     </View>
                 </View>
                 <Text onPress={() => {
-                    alert('Esqueceu sua senha?');
+                    navigation.navigate('ForgotPassword');
                 }} textDecorationLine="underline" >
                     Esqueceu sua senha?
                 </Text>
@@ -79,6 +81,8 @@ export function Login() {
                     pressStyle={{ backgroundColor: "$color.gray3Dark" }}
                     style={{ fontFamily: theme.fontFamily.Bold, fontSize: 16 }}
                     iconAfter={<ArrowRight size={"$1"} />}
+                    onPress={() => {
+                    }}
                 >
                     Entrar
                 </Button>
@@ -93,7 +97,7 @@ export function Login() {
                         Primeira vez?
                     </Text>
                     <Text onPress={() => {
-                        alert('Criar uma conta.');
+                        navigation.navigate('Register');
                     }} textDecorationLine="underline" >
                         Criar uma conta.
                     </Text>

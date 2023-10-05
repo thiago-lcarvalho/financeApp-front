@@ -3,10 +3,12 @@ import { ActivityIndicator, View } from "react-native";
 import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { ArrowRight } from '@tamagui/lucide-icons';
+import { useNavigation } from "@react-navigation/native";
 
 
 
 export function Register() {
+    const navigation = useNavigation<any>()
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -102,7 +104,7 @@ export function Register() {
                         Já tem uma conta?
                     </Text>
                     <Text onPress={() => {
-                        alert('Criar uma conta.');
+                        navigation.navigate('Login');
                     }} textDecorationLine="underline" >
                         Entrar.
                     </Text>
