@@ -23,7 +23,7 @@ export function ForgotPassword() {
         };
         try {
             setLoading(true);
-            const response = await fetch(`${baseUrl}/users`, {
+            const response = await fetch(`${baseUrl}/users/change-password/2`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',

@@ -33,7 +33,7 @@ export function Register() {
             });
 
             if (response.ok) {
-                navigation.navigate('Main');
+                navigation.navigate('Login');
             } else {
                 const errorResponse = await response.json();
                 Alert.alert('Erro', errorResponse.message, [
