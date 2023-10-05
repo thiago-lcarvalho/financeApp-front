@@ -7,7 +7,9 @@ import { TamaguiProvider, Spinner } from 'tamagui'
 import config from './tamagui.config'
 import { Login } from './Screens/Login';
 import { Register } from './Screens/Register';
+import { NavigationContainer } from '@react-navigation/native';
 import { ForgotPassword } from './Screens/ForgotPassword';
+import { Routes } from './Routes';
 
 const Regular = require('./Theme/Fonts/SourceSans3-Medium.ttf');
 const Thin = require('./Theme/Fonts/SourceSans3-Light.ttf');
@@ -39,8 +41,7 @@ export default function App() {
 
   return (
     <TamaguiProvider config={config}>
-      {/* <Main /> */}
-      <ForgotPassword />
+      <Routes />
     </TamaguiProvider>
   );
 }
