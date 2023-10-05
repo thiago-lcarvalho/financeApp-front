@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { ArrowRight } from '@tamagui/lucide-icons';
 import { useNavigation } from "@react-navigation/native";
+import { baseUrl } from "../../url";
 
 
 
@@ -14,6 +15,37 @@ export function Register() {
     const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+
+    const handleCreateUser = async () => {
+        const requestBody = {
+            email: email,
+            password: password,
+            name: firstName + " " + lastName,
+        };
+        try {
+            setLoading(true);
+            const response = await fetch(`${baseUrl}/users`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (response.ok) {
+                navigation.navigate('Main');
+            } else {
+                const errorResponse = await response.json();
+                Alert.alert('Erro', errorResponse.message, [
+                    { text: 'OK' },
+                ]);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     if (loading)
@@ -90,6 +122,9 @@ export function Register() {
                     pressStyle={{ backgroundColor: "$color.gray3Dark" }}
                     style={{ fontFamily: theme.fontFamily.Regular, fontSize: 16 }}
                     iconAfter={<ArrowRight size={"$1"} />}
+                    onPress={() => {
+                        handleCreateUser();
+                    }}
                 >
                     Criar conta
                 </Button>

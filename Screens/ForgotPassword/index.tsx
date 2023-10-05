@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { ArrowRight } from '@tamagui/lucide-icons';
 import { useNavigation } from "@react-navigation/native";
+import { baseUrl } from "../../url";
 
 
 
@@ -13,6 +14,38 @@ export function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
+
+    const handleChangePassword = async () => {
+        const name = firstName + " " + lastName;
+        const requestBody = {
+            email: email,
+            name: name,
+        };
+        try {
+            setLoading(true);
+            const response = await fetch(`${baseUrl}/users`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (response.ok) {
+                navigation.navigate('Login');
+            } else {
+                const errorResponse = await response.json();
+                Alert.alert('Erro', errorResponse.message, [
+                    { text: 'OK' },
+                ]);
+                navigation.navigate('Login');
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    }
 
 
     if (loading)
@@ -76,6 +109,7 @@ export function ForgotPassword() {
                     pressStyle={{ backgroundColor: "$color.gray3Dark" }}
                     style={{ fontFamily: theme.fontFamily.Regular, fontSize: 16 }}
                     iconAfter={<ArrowRight size={"$1"} />}
+                    onPress={handleChangePassword}
                 >
                     Recuperar senha
                 </Button>

@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { Eye, EyeOff, Aperture, ArrowRight } from '@tamagui/lucide-icons';
 import { useNavigation } from "@react-navigation/native";
+import { baseUrl } from "../../url";
 
 
 
@@ -11,6 +12,38 @@ export function Login() {
     const navigation = useNavigation<any>()
     const [loading, setLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+
+    const handleLogin = async () => {
+        const requestBody = {
+            email: email,
+            password: password,
+        };
+        try {
+            setLoading(true);
+            const response = await fetch(`${baseUrl}/users/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody),
+            });
+
+            if (response.ok) {
+                navigation.navigate('Main');
+            } else {
+                const errorResponse = await response.json();
+                Alert.alert('Erro', errorResponse.message, [
+                    { text: 'OK' },
+                ]);
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     if (loading)
         return (
@@ -33,6 +66,8 @@ export function Login() {
                 alignContent: 'center',
             }}>
                 <Input
+                    onChangeText={(text) => { setEmail(text) }}
+                    value={email}
                     autoCapitalize="none"
                     autoCorrect={false}
                     backgroundColor={"$colorTransparent"}
@@ -45,6 +80,8 @@ export function Login() {
                 <View>
                     <View style={{ flexDirection: 'row' }}>
                         <Input
+                            onChangeText={(text) => { setPassword(text) }}
+                            value={password}
                             autoCapitalize="none"
                             autoCorrect={false}
                             backgroundColor={"$colorTransparent"}
@@ -82,6 +119,7 @@ export function Login() {
                     style={{ fontFamily: theme.fontFamily.Bold, fontSize: 16 }}
                     iconAfter={<ArrowRight size={"$1"} />}
                     onPress={() => {
+                        handleLogin();
                     }}
                 >
                     Entrar

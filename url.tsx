@@ -1,0 +1,1 @@
+export const baseUrl = 'https://c69d-2804-29b8-5137-263-fada-bebe-a488-4a95.ngrok-free.app'
