@@ -2,8 +2,9 @@ import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View } from 'react-native';
 import { Button, Sheet } from 'tamagui';
 import { CalendarRange, Contact, ArrowUpCircle, ArrowDownCircle, X, Check } from '@tamagui/lucide-icons';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
+import AuthContext from '../../Contexts/auth';
 
 export function Main() {
   const [loading, setLoading] = useState(false);
@@ -31,6 +32,7 @@ export function Main() {
   const [expenseValue, setExpenseValue] = useState(0);
   const [incomeValue, setIncomeValue] = useState(0);
   const [balance, setBalance] = useState(null);
+  const {auth} = useContext(AuthContext)
   const toggleExpenseSheet = () => {
     setOpenExpenseSheet(!openExpenseSheet);
   };
@@ -70,6 +72,7 @@ export function Main() {
         style={{ justifyContent: 'space-between', flexDirection: 'row', width: '85%', marginTop: 32 }}
       >
         <Button pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Contact color="$yellow10Light" size="$4" />} />
+        <Text style={{height: 68, color: theme.color.primary, fontFamily: theme.fontFamily.Thin, fontSize: 28}}>{auth.name}</Text>
         <Button pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color="$yellow10Light" size="$4" />} />
       </View>
       <View style={{
