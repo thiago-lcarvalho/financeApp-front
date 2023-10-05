@@ -2,14 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { theme } from './Theme/Theme';
 import * as Font from 'expo-font';
-import { Main } from './Screens/Main';
 import { TamaguiProvider, Spinner } from 'tamagui'
 import config from './tamagui.config'
-import { Login } from './Screens/Login';
-import { Register } from './Screens/Register';
-import { NavigationContainer } from '@react-navigation/native';
-import { ForgotPassword } from './Screens/ForgotPassword';
 import { Routes } from './Routes';
+import "./Config/Reactotron";
 
 const Regular = require('./Theme/Fonts/SourceSans3-Medium.ttf');
 const Thin = require('./Theme/Fonts/SourceSans3-Light.ttf');
