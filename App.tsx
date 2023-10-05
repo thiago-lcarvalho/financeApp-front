@@ -6,6 +6,8 @@ import { Main } from './Screens/Main';
 import { TamaguiProvider, Spinner } from 'tamagui'
 import config from './tamagui.config'
 import { Login } from './Screens/Login';
+import { Register } from './Screens/Register';
+import { ForgotPassword } from './Screens/ForgotPassword';
 
 const Regular = require('./Theme/Fonts/SourceSans3-Medium.ttf');
 const Thin = require('./Theme/Fonts/SourceSans3-Light.ttf');
@@ -38,7 +40,7 @@ export default function App() {
   return (
     <TamaguiProvider config={config}>
       {/* <Main /> */}
-      <Login />
+      <ForgotPassword />
     </TamaguiProvider>
   );
 }

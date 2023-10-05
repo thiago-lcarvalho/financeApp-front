@@ -2,13 +2,16 @@ import { useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
-import { Eye, EyeOff, Aperture, ArrowRight } from '@tamagui/lucide-icons';
+import { ArrowRight } from '@tamagui/lucide-icons';
 
 
 
-export function Login() {
+export function ForgotPassword() {
     const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+
 
     if (loading)
         return (
@@ -24,7 +27,6 @@ export function Login() {
             justifyContent: 'center',
             alignItems: 'center',
         }}>
-            <Button size={"$10"} transparent disabled icon={Aperture} />
             <View style={{
                 flexDirection: 'column',
                 gap: 12,
@@ -39,48 +41,41 @@ export function Login() {
                     width={"$20"}
                     placeholder="E-mail"
                     style={{ fontFamily: theme.fontFamily.Regular }}
+                    onChangeText={(text) => { setEmail(text) }}
+                    value={email}
                 />
-                <View>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Input
-                            autoCapitalize="none"
-                            autoCorrect={false}
-                            backgroundColor={"$colorTransparent"}
-                            borderRadius={4}
-                            selectionColor={theme.color.black}
-                            width="$20"
-                            secureTextEntry={!showPassword}
-                            placeholder="Senha"
-                            maxLength={20}
-                            style={{ fontFamily: theme.fontFamily.Regular }}
-                        />
-                        <Button
-                            onPress={() => {
-                                setShowPassword(!showPassword);
-                            }}
-                            position="absolute"
-                            right={0}
-                            width={"$1"}
-                            style={{ backgroundColor: 'transparent', }}
-                            icon={showPassword ? Eye : EyeOff}
-                        />
-                    </View>
-                </View>
-                <Text onPress={() => {
-                    alert('Esqueceu sua senha?');
-                }} textDecorationLine="underline" >
-                    Esqueceu sua senha?
-                </Text>
+                <Input
+                    autoCorrect={false}
+                    backgroundColor={"$colorTransparent"}
+                    borderRadius={4}
+                    selectionColor={theme.color.black}
+                    width="$20"
+                    placeholder="Primeiro Nome"
+                    style={{ fontFamily: theme.fontFamily.Regular }}
+                    onChangeText={(text) => { setFirstName(text) }}
+                    value={firstName}
+                />
+                <Input
+                    autoCorrect={false}
+                    backgroundColor={"$colorTransparent"}
+                    borderRadius={4}
+                    selectionColor={theme.color.black}
+                    width="$20"
+                    placeholder="Sobrenome"
+                    style={{ fontFamily: theme.fontFamily.Regular }}
+                    onChangeText={(text) => { setLastName(text) }}
+                    value={lastName}
+                />
                 <Button
                     borderRadius={4}
                     width="$20"
                     bg={theme.color.black}
                     color={theme.color.white}
                     pressStyle={{ backgroundColor: "$color.gray3Dark" }}
-                    style={{ fontFamily: theme.fontFamily.Bold, fontSize: 16 }}
+                    style={{ fontFamily: theme.fontFamily.Regular, fontSize: 16 }}
                     iconAfter={<ArrowRight size={"$1"} />}
                 >
-                    Entrar
+                    Recuperar senha
                 </Button>
                 <View
                     style={{
@@ -90,12 +85,12 @@ export function Login() {
                     }}
                 >
                     <Text>
-                        Primeira vez?
+                        Já tem uma conta?
                     </Text>
                     <Text onPress={() => {
                         alert('Criar uma conta.');
                     }} textDecorationLine="underline" >
-                        Criar uma conta.
+                        Entrar.
                     </Text>
                 </View>
             </View>
