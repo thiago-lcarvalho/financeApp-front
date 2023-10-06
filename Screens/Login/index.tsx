@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { ActivityIndicator, Alert, View } from "react-native";
 import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { Eye, EyeOff, Aperture, ArrowRight } from '@tamagui/lucide-icons';
 import { useNavigation } from "@react-navigation/native";
 import { baseUrl } from "../../url";
+import AuthContext from "../../Contexts/auth";
 
 
 
@@ -14,6 +15,7 @@ export function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const {setAuth} = useContext(AuthContext)
 
     const handleLogin = async () => {
         const requestBody = {
@@ -31,6 +33,10 @@ export function Login() {
             });
 
             if (response.ok) {
+                const parsedData = await response.json()
+                if(parsedData.data) {
+                    setAuth(parsedData.data)
+                }
                 navigation.navigate('Main');
             } else {
                 const errorResponse = await response.json();

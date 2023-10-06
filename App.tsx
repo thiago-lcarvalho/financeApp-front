@@ -6,6 +6,7 @@ import { TamaguiProvider, Spinner } from 'tamagui'
 import config from './tamagui.config'
 import { Routes } from './Routes';
 import "./Config/Reactotron";
+import { AuthContextProvider } from './Contexts/auth';
 
 const Regular = require('./Theme/Fonts/SourceSans3-Medium.ttf');
 const Thin = require('./Theme/Fonts/SourceSans3-Light.ttf');
@@ -37,7 +38,9 @@ export default function App() {
 
   return (
     <TamaguiProvider config={config}>
-      <Routes />
+      <AuthContextProvider>
+        <Routes />
+      </AuthContextProvider>
     </TamaguiProvider>
   );
 }
