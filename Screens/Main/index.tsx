@@ -1,10 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
-import {
-  Button, Sheet, Input
-} from 'tamagui';
-import { CalendarRange, Contact, ArrowUpCircle, ArrowDownCircle, X, Check } from '@tamagui/lucide-icons';
-import { useContext, useState } from 'react';
+import { ActivityIndicator, Alert, Text, View, Modal } from 'react-native';
+import { Button, Sheet, Input, YGroup, Separator } from 'tamagui';
+import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding } from '@tamagui/lucide-icons';
+import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext from '../../Contexts/auth';
 import { baseUrl } from '../../url';
@@ -33,6 +31,7 @@ export function Main() {
   const [openExpenseSheet, setOpenExpenseSheet] = useState(false);
   const [openIncomeSheet, setOpenIncomeSheet] = useState(false);
   const [invoiceDescription, setInvoiceDescription] = useState('');
+  const [openProfile, setOpenProfile] = useState(false);
   const [expenseValue, setExpenseValue] = useState('0');
   const [incomeValue, setIncomeValue] = useState('0');
   const { auth } = useContext(AuthContext)
@@ -41,6 +40,9 @@ export function Main() {
   yourDate = new Date(yourDate.getTime() - (offset * 60 * 1000))
   const date = yourDate.toISOString().split('T')[0]
 
+  useEffect(() => {
+    getBalance()
+  }, [])
 
   const toggleExpenseSheet = () => {
     setOpenExpenseSheet(!openExpenseSheet);
@@ -58,6 +60,7 @@ export function Main() {
     const requestBody = {
       userId: auth.id,
     };
+    setLoading(true);
     try {
       const response = await fetch(`${baseUrl}/invoices/balance/2`, {
         method: 'GET',
@@ -94,7 +97,6 @@ export function Main() {
       userId: auth.id,
     };
     try {
-      setLoading(true);
       const response = await fetch(`${baseUrl}/invoices`, {
         method: 'POST',
         headers: {
@@ -115,9 +117,9 @@ export function Main() {
         ]);
       }
       getBalance()
-    } catch (error) {
+    } catch (error: any) {
+      Alert.alert('Erro', error.message)
       console.error("Error:", error);
-      setLoading(false);
     }
   }
 
@@ -155,14 +157,48 @@ export function Main() {
       justifyContent: 'center',
     }}>
       <View
-        style={{ justifyContent: 'space-between', flexDirection: 'row', width: '85%', marginTop: 32 }}
+        style={{ justifyContent: 'space-between', flexDirection: 'row', width: '85%', height: '15%' }}
       >
-        <Button pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Contact color={theme.color.yellow} size="$4" />} />
-        <Text style={{ height: 68, color: theme.color.primary, fontFamily: theme.fontFamily.Thin, fontSize: 28 }}>{auth.name}</Text>
+        <View
+          style={{ justifyContent: 'space-between', flexDirection: 'column', gap: 12 }}
+        >
+          <Button onPress={() => { setOpenProfile(!openProfile) }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Settings color={theme.color.yellow} size="$4" />} />
+          {openProfile ? (
+            <YGroup separator={<Separator />} alignSelf="center" bordered width={240} size="$6">
+              <YGroup.Item>
+                <Button onPress={() => {
+                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<PersonStanding color={theme.color.yellow} />}>
+                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
+                    Perfil
+                  </Text>
+                </Button>
+              </YGroup.Item>
+              <YGroup.Item>
+                <Button onPress={() => {
+                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$blue6Dark" borderRadius="$10" iconAfter={<Star color='#53A9FF' />}>
+                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
+                    Pro +
+                  </Text>
+                </Button>
+              </YGroup.Item>
+              <YGroup.Item>
+                <Button onPress={() => {
+                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<LogOut color={theme.color.yellow} />}>
+                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
+                    Sair
+                  </Text>
+                </Button>
+              </YGroup.Item>
+            </YGroup>
+          ) : null}
+        </View>
         <Button pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color={theme.color.yellow} size="$4" />} />
       </View>
       <View style={{
-        height: '70%',
+        height: '40%',
+        width: '90%',
+        marginVertical: 90,
+        alignItems: 'center',
         justifyContent: 'center',
       }}>
         <View style={{
@@ -189,7 +225,7 @@ export function Main() {
         </View>
       </View>
       <View
-        style={{ justifyContent: 'space-between', flexDirection: 'row', width: '90%', marginTop: 32 }}
+        style={{ justifyContent: 'space-between', flexDirection: 'row', width: '90%', height: '10%', marginTop: 32 }}
       >
         <Sheet
           modal={true}
@@ -197,6 +233,11 @@ export function Main() {
           zIndex={100_000}
           animation="medium"
           snapPointsMode="percent"
+          onOpenChange={() => {
+            setOpenExpenseSheet(false)
+          }}
+          dismissOnSnapToBottom={true}
+          dismissOnOverlayPress={true}
           snapPoints={[70, 70]}
         >
           <Sheet.Overlay
@@ -207,20 +248,24 @@ export function Main() {
             <Button size="$6" circular icon={X} onPress={() => {
               toggleExpenseSheet()
             }} />
-            <Input width={200} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
-            <Input width={200} keyboardType='decimal-pad' keyboardAppearance='dark' value={expenseValue} onChangeText={(text) => setExpenseValue(text)} />
+            <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
+            <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={expenseValue} onChangeText={(text) => setExpenseValue(text)} />
             <Button size="$6" circular icon={Check} onPress={() => {
               handleNewBalance(expenseValue)
             }} />
           </Sheet.Frame>
         </Sheet>
         <Sheet
-          dismissOnSnapToBottom
           modal={true}
           open={openIncomeSheet}
           zIndex={100_000}
           animation="medium"
           snapPointsMode='percent'
+          onOpenChange={() => {
+            setOpenIncomeSheet(false)
+          }}
+          dismissOnSnapToBottom={true}
+          dismissOnOverlayPress={true}
           snapPoints={[70, 70]}
         >
           <Sheet.Overlay
@@ -231,8 +276,8 @@ export function Main() {
             <Button size="$6" circular icon={X} onPress={() => {
               setOpenIncomeSheet(false)
             }} />
-            <Input width={200} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
-            <Input width={200} keyboardType='decimal-pad' keyboardAppearance='dark' value={incomeValue} onChangeText={(text) => setIncomeValue(text)} />
+            <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
+            <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={incomeValue} onChangeText={(text) => setIncomeValue(text)} />
             <Button size="$6" circular icon={Check} onPress={() => {
               handleNewBalance(incomeValue)
             }} />
@@ -258,7 +303,7 @@ export function Main() {
         </Button>
       </View>
       <StatusBar style="light" />
-    </View>
+    </View >
   );
 }
 
