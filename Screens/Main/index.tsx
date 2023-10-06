@@ -302,7 +302,7 @@ export function Main() {
           </View>
         </Button>
       </View>
-      <StatusBar style="light" />
+      <StatusBar style="dark" />
     </View >
   );
 }
