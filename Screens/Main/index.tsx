@@ -1,11 +1,63 @@
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Alert, Text, View, Modal } from 'react-native';
+import { ActivityIndicator, Alert, Text, View, Modal, TouchableOpacity } from 'react-native';
 import { Button, Sheet, Input, YGroup, Separator } from 'tamagui';
 import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext from '../../Contexts/auth';
 import { baseUrl } from '../../url';
+
+
+const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
+  return (
+    <Modal transparent visible={visible} animationType='fade' >
+      <TouchableOpacity
+        activeOpacity={1}
+        onPress={onClose}
+        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', width: '85%' }}>
+          <View style={{ backgroundColor: 'transparent', borderRadius: 10, paddingTop: 30 }}>
+            <YGroup separator={<Separator />} alignSelf="center" bordered width={240} size="$6">
+              <YGroup.Item>
+                <Button onPress={() => {
+                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<PersonStanding color={theme.color.yellow} />}>
+                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
+                    Perfil
+                  </Text>
+                </Button>
+              </YGroup.Item>
+              <YGroup.Item>
+                <Button onPress={() => {
+                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$blue6Dark" borderRadius="$10" iconAfter={<Star color='#53A9FF' />}>
+                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
+                    Pro +
+                  </Text>
+                </Button>
+              </YGroup.Item>
+              <YGroup.Item>
+                <Button onPress={() => {
+                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<LogOut color={theme.color.yellow} />}>
+                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
+                    Sair
+                  </Text>
+                </Button>
+              </YGroup.Item>
+            </YGroup>
+          </View>
+        </View>
+        <View style={{
+          height: '40%',
+          width: '90%',
+          marginVertical: 90,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }} />
+      </TouchableOpacity>
+    </Modal>
+
+  );
+};
 
 export function Main() {
   const [loading, setLoading] = useState(false);
@@ -28,10 +80,11 @@ export function Main() {
     currency: 'BRL',
   }).format(userData.currentBalance);
 
+
+  const [settingsVisible, setSettingsVisible] = useState(false);
   const [openExpenseSheet, setOpenExpenseSheet] = useState(false);
   const [openIncomeSheet, setOpenIncomeSheet] = useState(false);
   const [invoiceDescription, setInvoiceDescription] = useState('');
-  const [openProfile, setOpenProfile] = useState(false);
   const [expenseValue, setExpenseValue] = useState('0');
   const [incomeValue, setIncomeValue] = useState('0');
   const { auth } = useContext(AuthContext)
@@ -43,6 +96,14 @@ export function Main() {
   useEffect(() => {
     getBalance()
   }, [])
+
+  const openSettings = () => {
+    setSettingsVisible(true);
+  };
+
+  const closeSettings = () => {
+    setSettingsVisible(false);
+  };
 
   const toggleExpenseSheet = () => {
     setOpenExpenseSheet(!openExpenseSheet);
@@ -96,6 +157,7 @@ export function Main() {
       actionDate: date,
       userId: auth.id,
     };
+
     try {
       const response = await fetch(`${baseUrl}/invoices`, {
         method: 'POST',
@@ -106,9 +168,9 @@ export function Main() {
       });
 
       if (response.ok) {
-        const parsedData = await response.json()
+        const parsedData = await response.json();
         if (parsedData.data) {
-          Alert.alert('Sucesso', parsedData.message)
+          Alert.alert('Sucesso', parsedData.message);
         }
       } else {
         const errorResponse = await response.json();
@@ -116,12 +178,12 @@ export function Main() {
           { text: 'OK' },
         ]);
       }
-      getBalance()
+      getBalance();
     } catch (error: any) {
-      Alert.alert('Erro', error.message)
-      console.error("Error:", error);
+      Alert.alert('Erro', error.message);
     }
-  }
+  };
+
 
 
   const handleNewBalance = (value: string) => {
@@ -162,35 +224,8 @@ export function Main() {
         <View
           style={{ justifyContent: 'space-between', flexDirection: 'column', gap: 12 }}
         >
-          <Button onPress={() => { setOpenProfile(!openProfile) }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Settings color={theme.color.yellow} size="$4" />} />
-          {openProfile ? (
-            <YGroup separator={<Separator />} alignSelf="center" bordered width={240} size="$6">
-              <YGroup.Item>
-                <Button onPress={() => {
-                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<PersonStanding color={theme.color.yellow} />}>
-                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
-                    Perfil
-                  </Text>
-                </Button>
-              </YGroup.Item>
-              <YGroup.Item>
-                <Button onPress={() => {
-                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$blue6Dark" borderRadius="$10" iconAfter={<Star color='#53A9FF' />}>
-                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
-                    Pro +
-                  </Text>
-                </Button>
-              </YGroup.Item>
-              <YGroup.Item>
-                <Button onPress={() => {
-                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<LogOut color={theme.color.yellow} />}>
-                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
-                    Sair
-                  </Text>
-                </Button>
-              </YGroup.Item>
-            </YGroup>
-          ) : null}
+          <Button onPress={openSettings} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Settings color={theme.color.yellow} size="$4" />} />
+          <SettingsMenu visible={settingsVisible} onClose={closeSettings} />
         </View>
         <Button pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color={theme.color.yellow} size="$4" />} />
       </View>
@@ -228,7 +263,7 @@ export function Main() {
         style={{ justifyContent: 'space-between', flexDirection: 'row', width: '90%', height: '10%', marginTop: 32 }}
       >
         <Sheet
-          modal={true}
+          modal
           open={openExpenseSheet}
           zIndex={100_000}
           animation="medium"
@@ -236,9 +271,9 @@ export function Main() {
           onOpenChange={() => {
             setOpenExpenseSheet(false)
           }}
-          dismissOnSnapToBottom={true}
-          dismissOnOverlayPress={true}
-          snapPoints={[70, 70]}
+          dismissOnSnapToBottom
+          dismissOnOverlayPress
+          snapPoints={[80, 80]}
         >
           <Sheet.Overlay
             animation="lazy"
@@ -256,7 +291,7 @@ export function Main() {
           </Sheet.Frame>
         </Sheet>
         <Sheet
-          modal={true}
+          modal
           open={openIncomeSheet}
           zIndex={100_000}
           animation="medium"
@@ -264,9 +299,9 @@ export function Main() {
           onOpenChange={() => {
             setOpenIncomeSheet(false)
           }}
-          dismissOnSnapToBottom={true}
-          dismissOnOverlayPress={true}
-          snapPoints={[70, 70]}
+          dismissOnSnapToBottom
+          dismissOnOverlayPress
+          snapPoints={[80, 80]}
         >
           <Sheet.Overlay
             animation="lazy"
