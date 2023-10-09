@@ -37,6 +37,7 @@ export function Login() {
                 if (parsedData.data) {
                     setAuth(parsedData.data)
                 }
+                navigation.removeListener
                 navigation.navigate('Main');
             } else {
                 const errorResponse = await response.json();
