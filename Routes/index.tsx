@@ -5,6 +5,7 @@ import { Login } from '../Screens/Login';
 import { Register } from '../Screens/Register';
 import { ForgotPassword } from '../Screens/ForgotPassword';
 import { Main } from '../Screens/Main';
+import { ChangePassword } from '../Screens/ChangePassword';
 
 
 const Stack = createNativeStackNavigator();
@@ -25,6 +26,7 @@ export function Routes() {
                 <Stack.Screen name="Main" component={Main} />
                 <Stack.Screen name="Register" component={Register} />
                 <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+                <Stack.Screen name="ChangePassword" component={ChangePassword} />
             </Stack.Navigator>
         </NavigationContainer>
     );

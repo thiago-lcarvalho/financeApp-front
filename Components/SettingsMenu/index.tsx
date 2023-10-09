@@ -30,9 +30,11 @@ export const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> =
                         <YGroup separator={<Separator />} alignSelf="center" bordered width={240} size="$6">
                             <YGroup.Item>
                                 <Button onPress={() => {
+                                    navigation.navigate('ChangePassword');
+                                    onClose();
                                 }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<PersonStanding color={theme.color.yellow} />}>
                                     <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
-                                        Perfil
+                                        Alterar senha
                                     </Text>
                                 </Button>
                             </YGroup.Item>

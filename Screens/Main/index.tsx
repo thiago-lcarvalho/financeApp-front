@@ -16,8 +16,8 @@ export function Main() {
   const [openExpenseSheet, setOpenExpenseSheet] = useState(false);
   const [openIncomeSheet, setOpenIncomeSheet] = useState(false);
   const [invoiceDescription, setInvoiceDescription] = useState('');
-  const [expenseValue, setExpenseValue] = useState('0');
-  const [incomeValue, setIncomeValue] = useState('0');
+  const [expenseValue, setExpenseValue] = useState('');
+  const [incomeValue, setIncomeValue] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
   const { auth } = useContext(AuthContext)
   let yourDate = new Date()
@@ -40,13 +40,13 @@ export function Main() {
   const toggleExpenseSheet = () => {
     setOpenExpenseSheet(!openExpenseSheet);
     setInvoiceDescription('');
-    setExpenseValue('0');
+    setExpenseValue('');
   };
 
   const toggleIncomeSheet = () => {
     setOpenIncomeSheet(!openIncomeSheet);
     setInvoiceDescription('');
-    setIncomeValue('0');
+    setIncomeValue('');
   };
 
   const getBalance = async () => {
@@ -216,8 +216,13 @@ export function Main() {
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
+                placeholder='Valor'
                 paddingLeft={40}
-                width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={expenseValue} onChangeText={(text) => setExpenseValue(text)}
+                width={200}
+                style={{ fontFamily: theme.fontFamily.Regular }}
+                keyboardType='decimal-pad'
+                keyboardAppearance='dark'
+                value={expenseValue} onChangeText={(text) => setExpenseValue(text)}
               />
               <Button
                 position='absolute'
@@ -261,8 +266,13 @@ export function Main() {
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
+                placeholder='Valor'
                 paddingLeft={40}
-                width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={incomeValue} onChangeText={(text) => setIncomeValue(text)}
+                width={200}
+                style={{ fontFamily: theme.fontFamily.Regular }}
+                keyboardType='decimal-pad'
+                keyboardAppearance='dark'
+                value={incomeValue} onChangeText={(text) => setIncomeValue(text)}
               />
               <Button
                 position='absolute'
