@@ -6,9 +6,18 @@ import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext from '../../Contexts/auth';
 import { baseUrl } from '../../url';
+import { useNavigation } from '@react-navigation/native';
 
 
 const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
+  const navigation = useNavigation<any>()
+  const { setAuth } = useContext(AuthContext);
+
+  const handleLogout = () => {
+    setAuth({ id: 0, email: '', name: '' });
+    navigation.navigate('Login');
+    onClose();
+  };
   return (
     <Modal transparent visible={visible} animationType='fade' >
       <TouchableOpacity
@@ -37,6 +46,7 @@ const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> = ({ vis
               </YGroup.Item>
               <YGroup.Item>
                 <Button onPress={() => {
+                  handleLogout()
                 }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<LogOut color={theme.color.yellow} />}>
                   <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
                     Sair
