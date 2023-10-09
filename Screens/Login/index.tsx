@@ -15,7 +15,7 @@ export function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const { setAuth } = useContext(AuthContext)
+    const { setAuth, auth } = useContext(AuthContext)
 
     const handleLogin = async () => {
         const requestBody = {
@@ -37,7 +37,7 @@ export function Login() {
                 if (parsedData.data) {
                     setAuth(parsedData.data)
                 }
-                navigation.removeListener
+
                 navigation.navigate('Main');
             } else {
                 const errorResponse = await response.json();
@@ -51,6 +51,12 @@ export function Login() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (auth.id) {
+            navigation.navigate('Main');
+        }
+    }, [auth])
 
     if (loading)
         return (
@@ -113,6 +119,7 @@ export function Login() {
                     </View>
                 </View>
                 <Text onPress={() => {
+
                     navigation.navigate('ForgotPassword');
                 }} textDecorationLine="underline" >
                     Esqueceu sua senha?
@@ -142,6 +149,7 @@ export function Login() {
                         Primeira vez?
                     </Text>
                     <Text onPress={() => {
+
                         navigation.navigate('Register');
                     }} textDecorationLine="underline" >
                         Criar uma conta.

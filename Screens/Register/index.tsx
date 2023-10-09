@@ -33,6 +33,7 @@ export function Register() {
             });
 
             if (response.ok) {
+
                 navigation.navigate('Login');
             } else {
                 const errorResponse = await response.json();
@@ -139,6 +140,7 @@ export function Register() {
                         Já tem uma conta?
                     </Text>
                     <Text onPress={() => {
+
                         navigation.navigate('Login');
                     }} textDecorationLine="underline" >
                         Entrar.

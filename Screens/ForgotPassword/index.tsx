@@ -11,18 +11,15 @@ export function ForgotPassword() {
     const navigation = useNavigation<any>()
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
 
     const handleChangePassword = async () => {
-        const name = firstName + " " + lastName;
         const requestBody = {
             email: email,
         };
         try {
             setLoading(true);
             const response = await fetch(`${baseUrl}/users/recovery-password`, {
-                method: 'PATCH',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -30,6 +27,7 @@ export function ForgotPassword() {
             });
 
             if (response.ok) {
+
                 navigation.navigate('Login');
             } else {
                 const errorResponse = await response.json();
@@ -77,28 +75,6 @@ export function ForgotPassword() {
                     onChangeText={(text) => { setEmail(text) }}
                     value={email}
                 />
-                <Input
-                    autoCorrect={false}
-                    backgroundColor={"$colorTransparent"}
-                    borderRadius={4}
-                    selectionColor={theme.color.black}
-                    width="$20"
-                    placeholder="Primeiro Nome"
-                    style={{ fontFamily: theme.fontFamily.Regular }}
-                    onChangeText={(text) => { setFirstName(text) }}
-                    value={firstName}
-                />
-                <Input
-                    autoCorrect={false}
-                    backgroundColor={"$colorTransparent"}
-                    borderRadius={4}
-                    selectionColor={theme.color.black}
-                    width="$20"
-                    placeholder="Sobrenome"
-                    style={{ fontFamily: theme.fontFamily.Regular }}
-                    onChangeText={(text) => { setLastName(text) }}
-                    value={lastName}
-                />
                 <Button
                     borderRadius={4}
                     width="$20"
@@ -122,6 +98,7 @@ export function ForgotPassword() {
                         Já tem uma conta?
                     </Text>
                     <Text onPress={() => {
+
                         navigation.navigate('Login');
                     }} textDecorationLine="underline" >
                         Entrar.
