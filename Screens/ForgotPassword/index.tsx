@@ -19,11 +19,10 @@ export function ForgotPassword() {
         const name = firstName + " " + lastName;
         const requestBody = {
             email: email,
-            name: name,
         };
         try {
             setLoading(true);
-            const response = await fetch(`${baseUrl}/users/change-password/2`, {
+            const response = await fetch(`${baseUrl}/users/recovery-password`, {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
