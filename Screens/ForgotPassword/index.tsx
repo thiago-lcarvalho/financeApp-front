@@ -4,8 +4,7 @@ import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { ArrowRight } from '@tamagui/lucide-icons';
 import { useNavigation } from "@react-navigation/native";
-import { baseUrl } from "../../url";
-
+import { baseUrl } from "../../Contexts/auth";
 
 
 export function ForgotPassword() {
