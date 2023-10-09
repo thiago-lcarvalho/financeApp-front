@@ -1,94 +1,22 @@
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View, Modal, TouchableOpacity } from 'react-native';
-import { Button, Sheet, Input, YGroup, Separator } from 'tamagui';
+import { Button, Sheet, Input } from 'tamagui';
 import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext from '../../Contexts/auth';
-import { baseUrl } from '../../url';
-import { useNavigation } from '@react-navigation/native';
+import { baseUrl } from "../../Contexts/auth";
+import { SettingsMenu } from '../../Components/SettingsMenu';
 
 
-const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
-  const navigation = useNavigation<any>()
-  const { setAuth } = useContext(AuthContext);
-
-  const handleLogout = () => {
-    setAuth({ id: 0, email: '', name: '' });
-    navigation.navigate('Login');
-    onClose();
-  };
-  return (
-    <Modal transparent visible={visible} animationType='fade' >
-      <TouchableOpacity
-        activeOpacity={1}
-        onPress={onClose}
-        style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
-      >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'flex-start', width: '85%' }}>
-          <View style={{ backgroundColor: 'transparent', borderRadius: 10, paddingTop: 30 }}>
-            <YGroup separator={<Separator />} alignSelf="center" bordered width={240} size="$6">
-              <YGroup.Item>
-                <Button onPress={() => {
-                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<PersonStanding color={theme.color.yellow} />}>
-                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
-                    Perfil
-                  </Text>
-                </Button>
-              </YGroup.Item>
-              <YGroup.Item>
-                <Button onPress={() => {
-                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$blue6Dark" borderRadius="$10" iconAfter={<Star color='#53A9FF' />}>
-                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
-                    Pro +
-                  </Text>
-                </Button>
-              </YGroup.Item>
-              <YGroup.Item>
-                <Button onPress={() => {
-                  handleLogout()
-                }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<LogOut color={theme.color.yellow} />}>
-                  <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
-                    Sair
-                  </Text>
-                </Button>
-              </YGroup.Item>
-            </YGroup>
-          </View>
-        </View>
-        <View style={{
-          height: '40%',
-          width: '90%',
-          marginVertical: 90,
-          alignItems: 'center',
-          justifyContent: 'center',
-        }} />
-      </TouchableOpacity>
-    </Modal>
-
-  );
-};
 
 export function Main() {
   const [loading, setLoading] = useState(false);
-  const userData = {
-    name: "João",
-    lastName: "Pedro",
-    email: "joaopedro@email.com",
-    currentBalance: 1000.23,
-    accountStatus: "active",
-    proAccount: true,
-    tracking: 'monthly',
-    lastBalance: 500.17,
+  // const balanceStatus = userData.currentBalance > userData.lastBalance ? 'positive' : 'negative';
+  // const balanceSurplus = Math.round(Math.abs(userData.currentBalance - userData.lastBalance) * 1e2) / 1e2;
+  // const newBalancePercentage = Math.round(((balanceSurplus / userData.lastBalance) * 100) * 1e2) / 1e2;
 
-  }
-  const balanceStatus = userData.currentBalance > userData.lastBalance ? 'positive' : 'negative';
-  const balanceSurplus = Math.round(Math.abs(userData.currentBalance - userData.lastBalance) * 1e2) / 1e2;
-  const newBalancePercentage = Math.round(((balanceSurplus / userData.lastBalance) * 100) * 1e2) / 1e2;
-  const formattedBalance = new Intl.NumberFormat('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  }).format(userData.currentBalance);
+  // ! Quando adicionar lastBalance
 
 
   const [settingsVisible, setSettingsVisible] = useState(false);
@@ -97,6 +25,7 @@ export function Main() {
   const [invoiceDescription, setInvoiceDescription] = useState('');
   const [expenseValue, setExpenseValue] = useState('0');
   const [incomeValue, setIncomeValue] = useState('0');
+  const [currentBalance, setCurrentBalance] = useState(0);
   const { auth } = useContext(AuthContext)
   let yourDate = new Date()
   const offset = yourDate.getTimezoneOffset()
@@ -128,24 +57,18 @@ export function Main() {
   };
 
   const getBalance = async () => {
-    const requestBody = {
-      userId: auth.id,
-    };
     setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/invoices/balance/2`, {
+      const response = await fetch(`${baseUrl}/invoices/balance/${auth.id}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(requestBody),
       });
 
       if (response.ok) {
         const parsedData = await response.json()
-        if (parsedData.data) {
-          Alert.alert('Sucesso', parsedData.message)
-        }
+        setCurrentBalance(parsedData.data.balance)
       } else {
         const errorResponse = await response.json();
         Alert.alert('Erro', errorResponse.message, [
@@ -158,6 +81,8 @@ export function Main() {
       setLoading(false);
     }
   }
+
+
 
   const sendInvoice = async (type: string) => {
     const requestBody = {
@@ -197,12 +122,6 @@ export function Main() {
 
 
   const handleNewBalance = (value: string) => {
-    const newValue = parseFloat(value);
-    const formattedValue = new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-      minimumFractionDigits: 2,
-    }).format(newValue);
     if (openExpenseSheet) {
       sendInvoice('expense')
       setOpenExpenseSheet(false);
@@ -213,6 +132,10 @@ export function Main() {
     }
   }
 
+  const formattedBalance = new Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  }).format(currentBalance);
 
   if (loading)
     return (
@@ -253,7 +176,7 @@ export function Main() {
           <Text style={{ height: 68, color: theme.color.primary, fontFamily: theme.fontFamily.Thin, fontSize: 56 }}>
             {formattedBalance}
           </Text>
-          <View style={{
+          {/* <View style={{
             backgroundColor: theme.color.gray,
             borderRadius: 10,
             paddingHorizontal: 6,
@@ -266,7 +189,8 @@ export function Main() {
             }}>
               {balanceStatus === 'positive' ? '+ ' : '- '}{balanceSurplus}{` (${newBalancePercentage}%)`}
             </Text>
-          </View>
+          </View> */}
+          {/* Quando adicionar lastBalance */}
         </View>
       </View>
       <View

@@ -1,6 +1,8 @@
 import React, { ReactNode, createContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+export const baseUrl = 'http://18.219.7.94:8080'
+
 interface Auth {
   id: number;
   email: string;
