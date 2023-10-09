@@ -52,9 +52,10 @@ export function Main() {
   const getBalance = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${baseUrl}/invoices/balance/${auth.id}`, {
+      const response = await fetch(`${baseUrl}/invoices/balance/`, {
         method: 'GET',
         headers: {
+          Authorization: `Bearer ${auth.token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -83,13 +84,14 @@ export function Main() {
       value: type === 'expense' ? parseFloat(expenseValue) : parseFloat(incomeValue),
       type: type === 'expense' ? 'LOSS' : 'GAIN',
       actionDate: date,
-      userId: auth.id,
+      userId: auth.user.id,
     };
 
     try {
       const response = await fetch(`${baseUrl}/invoices`, {
         method: 'POST',
         headers: {
+          Authorization: `Bearer ${auth.token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),

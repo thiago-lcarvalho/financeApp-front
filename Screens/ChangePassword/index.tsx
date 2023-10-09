@@ -21,9 +21,10 @@ export function ChangePassword() {
         };
         try {
             setLoading(true);
-            const response = await fetch(`${baseUrl}/users/change-password/${auth.id}`, {
+            const response = await fetch(`${baseUrl}/users/change-password/`, {
                 method: 'PATCH',
                 headers: {
+                    Authorization: `Bearer ${auth.token}`,
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(requestBody),
@@ -31,7 +32,14 @@ export function ChangePassword() {
 
             if (response.ok) {
                 Alert.alert('Sucesso', 'Senha alterada com sucesso');
-                setAuth({ id: 0, email: '', name: '' });
+                setAuth({
+                    token: '',
+                    user: {
+                        id: 0,
+                        name: '',
+                        email: '',
+                    },
+                });
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'Login' }],

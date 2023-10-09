@@ -9,15 +9,22 @@ import AuthContext from "../../Contexts/auth";
 export const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
     const navigation = useNavigation<any>()
     const { setAuth } = useContext(AuthContext);
-
     const handleLogout = () => {
-        setAuth({ id: 0, email: '', name: '' });
+        setAuth({
+            token: '',
+            user: {
+                id: 0,
+                name: '',
+                email: '',
+            },
+        });
         navigation.reset({
             index: 0,
             routes: [{ name: 'Login' }],
         });
         onClose();
     };
+
     return (
         <Modal transparent visible={visible} animationType='fade' >
             <TouchableOpacity

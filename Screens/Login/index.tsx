@@ -52,7 +52,7 @@ export function Login() {
     };
 
     useEffect(() => {
-        if (auth.id) {
+        if (auth.token) {
             navigation.navigate('Main');
         }
     }, [auth])
