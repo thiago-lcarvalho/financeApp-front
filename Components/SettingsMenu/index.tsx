@@ -12,8 +12,10 @@ export const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> =
 
     const handleLogout = () => {
         setAuth({ id: 0, email: '', name: '' });
-
-        navigation.navigate('Login');
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+        });
         onClose();
     };
     return (

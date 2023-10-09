@@ -17,7 +17,8 @@ export function Routes() {
             <Stack.Navigator
                 screenOptions={{
                     headerShown: false,
-                    gestureEnabled: false
+                    gestureEnabled: false,
+                    animation: 'none',
                 }}
             >
                 <Stack.Screen name="Login" component={Login} />

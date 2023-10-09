@@ -44,11 +44,10 @@ export function Login() {
                 Alert.alert('Erro', errorResponse.message, [
                     { text: 'OK' },
                 ]);
+                setLoading(false);
             }
         } catch (error) {
             console.error("Error:", error);
-        } finally {
-            setLoading(false);
         }
     };
 

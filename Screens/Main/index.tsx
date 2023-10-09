@@ -1,25 +1,17 @@
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View, Modal, TouchableOpacity } from 'react-native';
 import { Button, Sheet, Input } from 'tamagui';
-import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding } from '@tamagui/lucide-icons';
+import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding, Eye } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext from '../../Contexts/auth';
 import { baseUrl } from "../../Contexts/auth";
 import { SettingsMenu } from '../../Components/SettingsMenu';
-import { useNavigation } from '@react-navigation/native';
 
 
 
 export function Main() {
   const [loading, setLoading] = useState(false);
-  // const balanceStatus = userData.currentBalance > userData.lastBalance ? 'positive' : 'negative';
-  // const balanceSurplus = Math.round(Math.abs(userData.currentBalance - userData.lastBalance) * 1e2) / 1e2;
-  // const newBalancePercentage = Math.round(((balanceSurplus / userData.lastBalance) * 100) * 1e2) / 1e2;
-
-  // ! Quando adicionar lastBalance
-
-
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [openExpenseSheet, setOpenExpenseSheet] = useState(false);
   const [openIncomeSheet, setOpenIncomeSheet] = useState(false);
@@ -120,8 +112,6 @@ export function Main() {
     }
   };
 
-
-
   const handleNewBalance = (value: string) => {
     if (openExpenseSheet) {
       sendInvoice('expense')
@@ -137,6 +127,11 @@ export function Main() {
     style: 'currency',
     currency: 'BRL',
   }).format(currentBalance);
+  // const balanceStatus = currentBalance > 500 ? 'positive' : 'negative';
+  // const balanceSurplus = Math.round(Math.abs(currentBalance - 500) * 1e2) / 1e2;
+  // const newBalancePercentage = Math.round(((balanceSurplus / 500) * 100) * 1e2) / 1e2;
+
+  // ! Quando adicionar lastBalance
 
   if (loading)
     return (
@@ -219,7 +214,24 @@ export function Main() {
               toggleExpenseSheet()
             }} />
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
-            <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={expenseValue} onChangeText={(text) => setExpenseValue(text)} />
+            <View style={{ flexDirection: 'row' }}>
+              <Input
+                paddingLeft={40}
+                width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={expenseValue} onChangeText={(text) => setExpenseValue(text)}
+              />
+              <Button
+                position='absolute'
+                left={0}
+                disabled
+                color={theme.color.black}
+                style={{
+                  fontFamily: theme.fontFamily.Regular,
+                  backgroundColor: 'transparent',
+                }}
+              >
+                R$
+              </Button>
+            </View>
             <Button size="$6" circular icon={Check} onPress={() => {
               handleNewBalance(expenseValue)
             }} />
@@ -247,7 +259,24 @@ export function Main() {
               setOpenIncomeSheet(false)
             }} />
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
-            <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={incomeValue} onChangeText={(text) => setIncomeValue(text)} />
+            <View style={{ flexDirection: 'row' }}>
+              <Input
+                paddingLeft={40}
+                width={200} style={{ fontFamily: theme.fontFamily.Regular }} keyboardType='decimal-pad' keyboardAppearance='dark' value={incomeValue} onChangeText={(text) => setIncomeValue(text)}
+              />
+              <Button
+                position='absolute'
+                left={0}
+                disabled
+                color={theme.color.black}
+                style={{
+                  fontFamily: theme.fontFamily.Regular,
+                  backgroundColor: 'transparent',
+                }}
+              >
+                R$
+              </Button>
+            </View>
             <Button size="$6" circular icon={Check} onPress={() => {
               handleNewBalance(incomeValue)
             }} />
