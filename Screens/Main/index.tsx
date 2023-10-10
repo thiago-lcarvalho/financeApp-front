@@ -124,6 +124,24 @@ export function Main() {
         }
       } else {
         const errorResponse = await response.json();
+        if (errorResponse.statusCode === 401) {
+          Alert.alert('Erro', errorResponse.message, [
+            { text: 'OK' },
+          ]);
+          setAuth({
+            token: '',
+            user: {
+              id: 0,
+              name: '',
+              email: '',
+            },
+          });
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+          return
+        }
         Alert.alert('Erro', errorResponse.message, [
           { text: 'OK' },
         ]);
