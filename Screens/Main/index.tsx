@@ -65,7 +65,17 @@ export function Main() {
       if (response.ok) {
         const parsedData = await response.json()
         setCurrentBalance(parsedData.data.balance)
-      } else {
+      }
+      else if (response.status === 400) {
+        const errorResponse = await response.json();
+        if (Array.isArray(errorResponse.message)) {
+          const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+          Alert.alert('Erro', errorMessage, [
+            { text: 'OK' },
+          ]);
+        }
+      }
+      else {
         const errorResponse = await response.json();
         if (errorResponse.statusCode === 401) {
           Alert.alert('Erro', errorResponse.message, [
@@ -111,7 +121,17 @@ export function Main() {
         if (parsedData.data) {
           Alert.alert('Sucesso', parsedData.message);
         }
-      } else {
+      }
+      else if (response.status === 400) {
+        const errorResponse = await response.json();
+        if (Array.isArray(errorResponse.message)) {
+          const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+          Alert.alert('Erro', errorMessage, [
+            { text: 'OK' },
+          ]);
+        }
+      }
+      else {
         const errorResponse = await response.json();
         if (errorResponse.statusCode === 401) {
           Alert.alert('Erro', errorResponse.message, [
