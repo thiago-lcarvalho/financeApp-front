@@ -4,8 +4,7 @@ import { theme } from "../../Theme/Theme";
 import { Button, Input, Text } from 'tamagui';
 import { Eye, EyeOff, Aperture, ArrowRight } from '@tamagui/lucide-icons';
 import { useNavigation } from "@react-navigation/native";
-import { baseUrl } from "../../Contexts/auth";
-import AuthContext from "../../Contexts/auth";
+import AuthContext, { baseUrl } from "../../Contexts/auth";
 
 
 
@@ -48,6 +47,10 @@ export function Login() {
             }
         } catch (error) {
             console.error("Error:", error);
+            setLoading(false);
+            Alert.alert('Erro', 'Ocorreu um erro ao fazer login, tente novamente.', [
+                { text: 'OK' },
+            ]);
         }
     };
 

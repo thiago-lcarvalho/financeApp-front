@@ -4,13 +4,15 @@ import { Button, Sheet, Input } from 'tamagui';
 import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding, Eye } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
-import AuthContext from '../../Contexts/auth';
-import { baseUrl } from "../../Contexts/auth";
+import AuthContext, { baseUrl } from "../../Contexts/auth";
 import { SettingsMenu } from '../../Components/SettingsMenu';
+import { useNavigation } from '@react-navigation/native';
+
 
 
 
 export function Main() {
+  const { setAuth, auth } = useContext(AuthContext)
   const [loading, setLoading] = useState(false);
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [openExpenseSheet, setOpenExpenseSheet] = useState(false);
@@ -19,7 +21,7 @@ export function Main() {
   const [expenseValue, setExpenseValue] = useState('');
   const [incomeValue, setIncomeValue] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
-  const { auth } = useContext(AuthContext)
+  const navigation = useNavigation<any>()
   let yourDate = new Date()
   const offset = yourDate.getTimezoneOffset()
   yourDate = new Date(yourDate.getTime() - (offset * 60 * 1000))
@@ -65,6 +67,24 @@ export function Main() {
         setCurrentBalance(parsedData.data.balance)
       } else {
         const errorResponse = await response.json();
+        if (errorResponse.statusCode === 401) {
+          Alert.alert('Erro', errorResponse.message, [
+            { text: 'OK' },
+          ]);
+          setAuth({
+            token: '',
+            user: {
+              id: 0,
+              name: '',
+              email: '',
+            },
+          });
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Login' }],
+          });
+          return
+        }
         Alert.alert('Erro', errorResponse.message, [
           { text: 'OK' },
         ]);
