@@ -35,7 +35,21 @@ export function Register() {
             if (response.ok) {
 
                 navigation.navigate('Login');
-            } else {
+            } else if (response.status === 400) {
+                const errorResponse = await response.json();
+                if (Array.isArray(errorResponse.message)) {
+                    const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+                    Alert.alert('Erro', errorMessage, [
+                        { text: 'OK' },
+                    ]);
+                } else {
+                    Alert.alert('Erro', 'An error occurred.', [
+                        { text: 'OK' },
+                    ]);
+                }
+                setLoading(false);
+            }
+            else {
                 const errorResponse = await response.json();
                 Alert.alert('Erro', errorResponse.message, [
                     { text: 'OK' },

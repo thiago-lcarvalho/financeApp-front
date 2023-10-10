@@ -21,6 +21,7 @@ export function Login() {
             email: email,
             password: password,
         };
+
         try {
             setLoading(true);
             const response = await fetch(`${baseUrl}/users/login`, {
@@ -32,27 +33,36 @@ export function Login() {
             });
 
             if (response.ok) {
-                const parsedData = await response.json()
+                const parsedData = await response.json();
                 if (parsedData.data) {
-                    setAuth(parsedData.data)
+                    setAuth(parsedData.data);
                 }
-
                 navigation.navigate('Main');
-            } else {
+
+            } else if (response.status === 400) {
                 const errorResponse = await response.json();
-                Alert.alert('Erro', errorResponse.message, [
-                    { text: 'OK' },
-                ]);
+                if (Array.isArray(errorResponse.message)) {
+                    const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+                    Alert.alert('Erro', errorMessage, [
+                        { text: 'OK' },
+                    ]);
+                } else {
+                    Alert.alert('Erro', 'An error occurred.', [
+                        { text: 'OK' },
+                    ]);
+                }
                 setLoading(false);
             }
         } catch (error) {
-            console.error("Error:", error);
+            console.error('Network Error:', error);
             setLoading(false);
             Alert.alert('Erro', 'Ocorreu um erro ao fazer login, tente novamente.', [
                 { text: 'OK' },
             ]);
         }
     };
+
+
 
     useEffect(() => {
         if (auth.token) {

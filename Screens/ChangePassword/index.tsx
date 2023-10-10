@@ -34,7 +34,17 @@ export function ChangePassword() {
             if (response.ok) {
                 Alert.alert('Sucesso', 'Senha alterada com sucesso');
                 handleLogout(setAuth, navigation)
-            } else {
+            }
+            else if (response.status === 400) {
+                const errorResponse = await response.json();
+                if (Array.isArray(errorResponse.message)) {
+                    const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+                    Alert.alert('Erro', errorMessage, [
+                        { text: 'OK' },
+                    ]);
+                }
+            }
+            else {
                 const errorResponse = await response.json();
                 if (errorResponse.statusCode === 401) {
                     Alert.alert('Erro', errorResponse.message, [

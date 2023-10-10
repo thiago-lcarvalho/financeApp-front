@@ -26,18 +26,33 @@ export function ForgotPassword() {
                 body: JSON.stringify(requestBody),
             });
 
-            if (response.ok) {
-
-                navigation.navigate('Login');
-            } else {
-                const errorResponse = await response.json();
-                Alert.alert('Erro', errorResponse.message, [
+            if (response.ok || response.status === 404) {
+                Alert.alert('Ok!', 'E-mail enviado.', [
                     { text: 'OK' },
                 ]);
+                setLoading(false);
                 navigation.navigate('Login');
             }
+            else if (response.status === 400) {
+                const errorResponse = await response.json();
+                if (Array.isArray(errorResponse.message)) {
+                    const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+                    Alert.alert('Erro', errorMessage, [
+                        { text: 'OK' },
+                    ]);
+                } else {
+                    Alert.alert('Erro', 'An error occurred.', [
+                        { text: 'OK' },
+                    ]);
+                }
+                setLoading(false);
+            }
         } catch (error) {
-            console.error("Error:", error);
+            console.error('Network Error:', error);
+            setLoading(false);
+            Alert.alert('Erro', 'Ocorreu um erro ao fazer login, tente novamente.', [
+                { text: 'OK' },
+            ]);
         } finally {
             setLoading(false);
         }
