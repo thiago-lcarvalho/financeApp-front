@@ -5,6 +5,7 @@ import { Button, Input, Text } from 'tamagui';
 import { ArrowRight } from '@tamagui/lucide-icons';
 import { useNavigation } from "@react-navigation/native";
 import AuthContext, { baseUrl } from "../../Contexts/auth";
+import { handleLogout } from "../../Components/SettingsMenu";
 
 
 export function ChangePassword() {
@@ -32,36 +33,14 @@ export function ChangePassword() {
 
             if (response.ok) {
                 Alert.alert('Sucesso', 'Senha alterada com sucesso');
-                setAuth({
-                    token: '',
-                    user: {
-                        id: 0,
-                        name: '',
-                        email: '',
-                    },
-                });
-                navigation.reset({
-                    index: 0,
-                    routes: [{ name: 'Login' }],
-                });
+                handleLogout(setAuth, navigation)
             } else {
                 const errorResponse = await response.json();
                 if (errorResponse.statusCode === 401) {
                     Alert.alert('Erro', errorResponse.message, [
                         { text: 'OK' },
                     ]);
-                    setAuth({
-                        token: '',
-                        user: {
-                            id: 0,
-                            name: '',
-                            email: '',
-                        },
-                    });
-                    navigation.reset({
-                        index: 0,
-                        routes: [{ name: 'Login' }],
-                    });
+                    handleLogout(setAuth, navigation)
                     return
                 }
                 Alert.alert('Erro', errorResponse.message, [

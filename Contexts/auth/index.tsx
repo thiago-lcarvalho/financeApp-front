@@ -3,13 +3,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const baseUrl = 'http://18.219.7.94:8080'
 
-interface Auth {
-  token: string;
+export interface Auth {
+  token: string | null;
   user: {
     id: number;
     name: string;
     email: string;
-  }
+  } | null;
 }
 
 type ContextProps = {

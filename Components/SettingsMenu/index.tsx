@@ -1,29 +1,27 @@
 import { useNavigation } from "@react-navigation/native";
-import { Modal, TouchableOpacity, View, Text } from "react-native";
+import { Modal, TouchableOpacity, View, Text, Linking, Alert } from "react-native";
 import { Button, Separator, YGroup } from "tamagui";
 import { theme } from "../../Theme/Theme";
 import { LogOut, PersonStanding, Star } from "@tamagui/lucide-icons";
 import { useContext } from "react";
 import AuthContext from "../../Contexts/auth";
+import { Auth } from "../../Contexts/auth";
+
+export const handleLogout = (setAuth: (auth: Auth) => void, navigation: any) => {
+    setAuth({
+        token: null,
+        user: null,
+    });
+    navigation.reset({
+        index: 0,
+        routes: [{ name: 'Login' }],
+    });
+};
+
 
 export const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> = ({ visible, onClose }) => {
     const navigation = useNavigation<any>()
     const { setAuth } = useContext(AuthContext);
-    const handleLogout = () => {
-        setAuth({
-            token: '',
-            user: {
-                id: 0,
-                name: '',
-                email: '',
-            },
-        });
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-        });
-        onClose();
-    };
 
     return (
         <Modal transparent visible={visible} animationType='fade' >
@@ -47,6 +45,7 @@ export const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> =
                             </YGroup.Item>
                             <YGroup.Item>
                                 <Button onPress={() => {
+                                    Alert.alert('Faz o pix pai')
                                 }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$blue6Dark" borderRadius="$10" iconAfter={<Star color='#53A9FF' />}>
                                     <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
                                         Pro +
@@ -55,7 +54,8 @@ export const SettingsMenu: React.FC<{ visible: boolean; onClose: () => void }> =
                             </YGroup.Item>
                             <YGroup.Item>
                                 <Button onPress={() => {
-                                    handleLogout()
+                                    handleLogout(setAuth, navigation)
+                                    onClose();
                                 }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" borderRadius="$10" iconAfter={<LogOut color={theme.color.yellow} />}>
                                     <Text style={{ fontSize: 16, fontFamily: theme.fontFamily.Regular, color: 'white' }}>
                                         Sair

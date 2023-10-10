@@ -5,7 +5,7 @@ import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext, { baseUrl } from "../../Contexts/auth";
-import { SettingsMenu } from '../../Components/SettingsMenu';
+import { SettingsMenu, handleLogout } from '../../Components/SettingsMenu';
 import { useNavigation } from '@react-navigation/native';
 
 
@@ -71,18 +71,7 @@ export function Main() {
           Alert.alert('Erro', errorResponse.message, [
             { text: 'OK' },
           ]);
-          setAuth({
-            token: '',
-            user: {
-              id: 0,
-              name: '',
-              email: '',
-            },
-          });
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
+          handleLogout(setAuth, navigation)
           return
         }
         Alert.alert('Erro', errorResponse.message, [
@@ -104,7 +93,7 @@ export function Main() {
       value: type === 'expense' ? parseFloat(expenseValue) : parseFloat(incomeValue),
       type: type === 'expense' ? 'LOSS' : 'GAIN',
       actionDate: date,
-      userId: auth.user.id,
+      userId: auth.user?.id,
     };
 
     try {
@@ -128,18 +117,7 @@ export function Main() {
           Alert.alert('Erro', errorResponse.message, [
             { text: 'OK' },
           ]);
-          setAuth({
-            token: '',
-            user: {
-              id: 0,
-              name: '',
-              email: '',
-            },
-          });
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'Login' }],
-          });
+          handleLogout(setAuth, navigation)
           return
         }
         Alert.alert('Erro', errorResponse.message, [
