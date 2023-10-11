@@ -1,15 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Alert, Text, View, Modal, TouchableOpacity } from 'react-native';
-import { Button, Sheet, Input } from 'tamagui';
-import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding, Eye } from '@tamagui/lucide-icons';
+import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { Button, Sheet, Input, ToggleGroup, XStack, Label } from 'tamagui';
+import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Settings, Apple, Car, Home, BookOpen, Tv, DollarSign, Activity } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext, { baseUrl } from "../../Contexts/auth";
 import { SettingsMenu, handleLogout } from '../../Components/SettingsMenu';
 import { useNavigation } from '@react-navigation/native';
-
-
-
 
 export function Main() {
   const { setAuth, auth } = useContext(AuthContext)
@@ -26,6 +23,7 @@ export function Main() {
   const offset = yourDate.getTimezoneOffset()
   yourDate = new Date(yourDate.getTime() - (offset * 60 * 1000))
   const date = yourDate.toISOString().split('T')[0]
+  const [tags, setTags] = useState('')
 
   useEffect(() => {
     getBalance()
@@ -43,12 +41,14 @@ export function Main() {
     setOpenExpenseSheet(!openExpenseSheet);
     setInvoiceDescription('');
     setExpenseValue('');
+    setTags('')
   };
 
   const toggleIncomeSheet = () => {
     setOpenIncomeSheet(!openIncomeSheet);
     setInvoiceDescription('');
     setIncomeValue('');
+    setTags('')
   };
 
   const getBalance = async () => {
@@ -104,6 +104,7 @@ export function Main() {
       type: type === 'expense' ? 'LOSS' : 'GAIN',
       actionDate: date,
       userId: auth.user?.id,
+      tag: tags,
     };
 
     try {
@@ -251,6 +252,68 @@ export function Main() {
             <Button size="$6" circular icon={X} onPress={() => {
               toggleExpenseSheet()
             }} />
+            <View
+              style={{
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Label
+                style={{
+                  color: theme.color.black,
+                  fontFamily: theme.fontFamily.Regular,
+                  fontSize: 16,
+                  marginBottom: 10,
+                }}
+              >{tags}</Label>
+              <XStack
+                flexDirection={'row'}
+                alignItems="center"
+                justifyContent="center"
+                space="$4"
+              >
+                <ToggleGroup
+                  orientation={'horizontal'}
+                  type='single'
+                  disableDeactivation
+                >
+                  <ToggleGroup.Item value="Food" onPress={() => {
+                    setTags('Food')
+                  }} >
+                    <Apple />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="Transportation"
+                    onPress={() => {
+                      setTags('Transportation')
+                    }}
+                  >
+                    <Car />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="Housing"
+                    onPress={() => {
+                      setTags('Housing')
+                    }}
+                  >
+                    <Home />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="Study"
+                    onPress={() => {
+                      setTags('Study')
+                    }}
+                  >
+                    <BookOpen />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="Entertainment"
+                    onPress={() => {
+                      setTags('Entertainment')
+                    }}
+                  >
+                    <Tv />
+                  </ToggleGroup.Item>
+                </ToggleGroup>
+              </XStack>
+            </View>
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
@@ -301,6 +364,47 @@ export function Main() {
             <Button size="$6" circular icon={X} onPress={() => {
               setOpenIncomeSheet(false)
             }} />
+            <View
+              style={{
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Label
+                style={{
+                  color: theme.color.black,
+                  fontFamily: theme.fontFamily.Regular,
+                  fontSize: 16,
+                  marginBottom: 10,
+                }}
+              >{tags}</Label>
+              <XStack
+                flexDirection={'row'}
+                alignItems="center"
+                justifyContent="center"
+                space="$4"
+              >
+                <ToggleGroup
+                  orientation={'horizontal'}
+                  type='single'
+                  disableDeactivation
+                >
+                  <ToggleGroup.Item value="Salary" onPress={() => {
+                    setTags('Salary')
+                  }} >
+                    <DollarSign />
+                  </ToggleGroup.Item>
+                  <ToggleGroup.Item value="Investiments"
+                    onPress={() => {
+                      setTags('Investiments')
+                    }}
+                  >
+                    <Activity />
+                  </ToggleGroup.Item>
+                </ToggleGroup>
+              </XStack>
+            </View>
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
