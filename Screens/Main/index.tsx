@@ -1,7 +1,7 @@
 import { StatusBar } from 'expo-status-bar';
 import { ActivityIndicator, Alert, Text, View, Modal, TouchableOpacity } from 'react-native';
-import { Button, Sheet, Input } from 'tamagui';
-import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding, Eye } from '@tamagui/lucide-icons';
+import { Button, Sheet, Input, Checkbox, CheckboxProps, Label, XStack, YStack } from 'tamagui';
+import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding, Eye, Check as CheckIcon } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext, { baseUrl } from "../../Contexts/auth";
@@ -10,10 +10,10 @@ import { useNavigation } from '@react-navigation/native';
 
 
 
-
 export function Main() {
   const { setAuth, auth } = useContext(AuthContext)
   const [loading, setLoading] = useState(false);
+  const [customDate, setCustomDate] = useState('');
   const [settingsVisible, setSettingsVisible] = useState(false);
   const [openExpenseSheet, setOpenExpenseSheet] = useState(false);
   const [openIncomeSheet, setOpenIncomeSheet] = useState(false);
@@ -21,6 +21,7 @@ export function Main() {
   const [expenseValue, setExpenseValue] = useState('');
   const [incomeValue, setIncomeValue] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
+  const [datedInvoice, setDatedInvoice] = useState(false);
   const navigation = useNavigation<any>()
   let yourDate = new Date()
   const offset = yourDate.getTimezoneOffset()
@@ -43,13 +44,50 @@ export function Main() {
     setOpenExpenseSheet(!openExpenseSheet);
     setInvoiceDescription('');
     setExpenseValue('');
+    setCustomDate('')
+    setDatedInvoice(false)
   };
 
   const toggleIncomeSheet = () => {
     setOpenIncomeSheet(!openIncomeSheet);
     setInvoiceDescription('');
     setIncomeValue('');
+    setCustomDate('')
+    setDatedInvoice(false)
   };
+
+  function CheckboxWithLabel({
+    size,
+    label = 'Accept terms and conditions',
+    ...checkboxProps
+  }: CheckboxProps & { label?: string }) {
+    return (
+      <XStack width={300} alignItems="center" space="$4">
+        <Checkbox size={size}
+          {...checkboxProps}
+          checked={datedInvoice}
+          onCheckedChange={(checked: boolean | "indeterminate") => {
+            if (checked === 'indeterminate')
+              return
+            setDatedInvoice(checked)
+          }}
+        >
+          <Checkbox.Indicator>
+            <CheckIcon />
+          </Checkbox.Indicator>
+        </Checkbox>
+
+        <Label size={size}
+          style={{
+            fontFamily: theme.fontFamily.Regular,
+            color: theme.color.white,
+          }}
+        >
+          Agendar
+        </Label>
+      </XStack>
+    )
+  }
 
   const getBalance = async () => {
     setLoading(true);
@@ -95,14 +133,12 @@ export function Main() {
     }
   }
 
-
-
   const sendInvoice = async (type: string) => {
     const requestBody = {
       description: invoiceDescription,
       value: type === 'expense' ? parseFloat(expenseValue) : parseFloat(incomeValue),
       type: type === 'expense' ? 'LOSS' : 'GAIN',
-      actionDate: date,
+      actionDate: datedInvoice ? customDate : date,
       userId: auth.user?.id,
     };
 
@@ -151,6 +187,14 @@ export function Main() {
   };
 
   const handleNewBalance = (value: string) => {
+    if (value === '' || value === '0') {
+      Alert.alert('Erro', 'Valor não pode ser vazio');
+      return
+    }
+    if (parseFloat(value) < 0) {
+      Alert.alert('Erro', 'Valor não pode ser negativo');
+      return
+    }
     if (openExpenseSheet) {
       sendInvoice('expense')
       setOpenExpenseSheet(false);
@@ -194,7 +238,8 @@ export function Main() {
           <Button onPress={openSettings} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Settings color={theme.color.yellow} size="$4" />} />
           <SettingsMenu visible={settingsVisible} onClose={closeSettings} />
         </View>
-        <Button pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color={theme.color.yellow} size="$4" />} />
+        <Button
+          pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color={theme.color.yellow} size="$4" />} />
       </View>
       <View style={{
         height: '40%',
@@ -248,9 +293,21 @@ export function Main() {
           />
           <Sheet.Handle />
           <Sheet.Frame padding="$4" justifyContent="flex-start" alignItems="center" space="$5" backgroundColor={theme.color.negative}>
+            <CheckboxWithLabel size="$4" />
             <Button size="$6" circular icon={X} onPress={() => {
               toggleExpenseSheet()
             }} />
+            {datedInvoice ?
+              <View>
+                <Input
+                  width={200}
+                  value={customDate}
+                  onChangeText={(text) => setCustomDate(text)}
+                  placeholder="yyyy-mm-dd"
+                />
+              </View>
+              : null
+            }
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
@@ -260,7 +317,8 @@ export function Main() {
                 style={{ fontFamily: theme.fontFamily.Regular }}
                 keyboardType='decimal-pad'
                 keyboardAppearance='dark'
-                value={expenseValue} onChangeText={(text) => setExpenseValue(text)}
+                value={expenseValue}
+                onChangeText={(text) => setExpenseValue(text)}
               />
               <Button
                 position='absolute'
@@ -298,19 +356,37 @@ export function Main() {
           />
           <Sheet.Handle />
           <Sheet.Frame padding="$4" justifyContent="flex-start" alignItems="center" space="$5" backgroundColor={theme.color.positive}>
+            <CheckboxWithLabel size="$4" />
             <Button size="$6" circular icon={X} onPress={() => {
-              setOpenIncomeSheet(false)
+              toggleIncomeSheet()
             }} />
+            {datedInvoice ?
+              <View>
+                <Input
+                  width={200}
+                  value={customDate}
+                  onChangeText={(text) => setCustomDate(text)}
+                  placeholder="yyyy-mm-dd"
+                />
+              </View>
+              : null
+            }
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
                 placeholder='Valor'
                 paddingLeft={40}
                 width={200}
-                style={{ fontFamily: theme.fontFamily.Regular }}
+                style={{
+                  fontFamily: theme.fontFamily.Regular
+                }}
                 keyboardType='decimal-pad'
                 keyboardAppearance='dark'
-                value={incomeValue} onChangeText={(text) => setIncomeValue(text)}
+                value={incomeValue} onChangeText={
+                  (text) => {
+                    setIncomeValue(text)
+                  }
+                }
               />
               <Button
                 position='absolute'
