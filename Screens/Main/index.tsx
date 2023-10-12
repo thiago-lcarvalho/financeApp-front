@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Alert, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Text, View } from 'react-native';
 import { Button, Sheet, Input, ToggleGroup, XStack, Label } from 'tamagui';
 import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Settings, Apple, Car, Home, BookOpen, Tv, DollarSign, Activity } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
@@ -18,14 +18,17 @@ export function Main() {
   const [expenseValue, setExpenseValue] = useState('');
   const [incomeValue, setIncomeValue] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
+  const [categoriesList, setCategoriesList] = useState<any[]>([{}]);
   const navigation = useNavigation<any>()
   let yourDate = new Date()
   const offset = yourDate.getTimezoneOffset()
   yourDate = new Date(yourDate.getTime() - (offset * 60 * 1000))
   const date = yourDate.toISOString().split('T')[0]
-  const [tags, setTags] = useState('')
+  const [category, setCategory] = useState('')
+  const [categoryName, setCategoryName] = useState('')
 
   useEffect(() => {
+    getCategories()
     getBalance()
   }, [])
 
@@ -41,14 +44,16 @@ export function Main() {
     setOpenExpenseSheet(!openExpenseSheet);
     setInvoiceDescription('');
     setExpenseValue('');
-    setTags('')
+    setCategory('')
+    setCategoryName('')
   };
 
   const toggleIncomeSheet = () => {
     setOpenIncomeSheet(!openIncomeSheet);
     setInvoiceDescription('');
     setIncomeValue('');
-    setTags('')
+    setCategory('')
+    setCategoryName('')
   };
 
   const getBalance = async () => {
@@ -104,7 +109,7 @@ export function Main() {
       type: type === 'expense' ? 'LOSS' : 'GAIN',
       actionDate: date,
       userId: auth.user?.id,
-      tag: tags,
+      categoryId: category,
     };
 
     try {
@@ -150,6 +155,64 @@ export function Main() {
       Alert.alert('Erro', error.message);
     }
   };
+
+  function getIconComponent(iconName: string) {
+    switch (iconName) {
+      case 'Apple':
+        return <Apple />;
+      case 'Car':
+        return <Car />;
+      case 'Home':
+        return <Home />;
+      case 'BookOpen':
+        return <BookOpen />;
+      case 'Tv':
+        return <Tv />;
+      default:
+        return null;
+    }
+  }
+
+  const getCategories = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/categories`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        const parsedData = await response.json();
+        const tagsData = parsedData.data.categories;
+        setCategoriesList(tagsData);
+      }
+      else if (response.status === 400) {
+        const errorResponse = await response.json();
+        if (Array.isArray(errorResponse.message)) {
+          const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+          Alert.alert('Erro', errorMessage, [
+            { text: 'OK' },
+          ]);
+        }
+      }
+      else {
+        const errorResponse = await response.json();
+        if (errorResponse.statusCode === 401) {
+          Alert.alert('Erro', errorResponse.message, [
+            { text: 'OK' },
+          ]);
+          handleLogout(setAuth, navigation)
+          return
+        }
+        Alert.alert('Erro', errorResponse.message, [
+          { text: 'OK' },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
 
   const handleNewBalance = (value: string) => {
     if (openExpenseSheet) {
@@ -252,68 +315,31 @@ export function Main() {
             <Button size="$6" circular icon={X} onPress={() => {
               toggleExpenseSheet()
             }} />
-            <View
-              style={{
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+            <Label style={{ fontFamily: theme.fontFamily.Regular, fontSize: 16, color: 'white' }}>
+              {categoryName}
+            </Label>
+            <ToggleGroup
+              width={46 * categoriesList.length}
+              orientation={'horizontal'}
+              type='single'
+              disableDeactivation
+              backgroundColor={"$colorTransparent"}
             >
-              <Label
-                style={{
-                  color: theme.color.black,
-                  fontFamily: theme.fontFamily.Regular,
-                  fontSize: 16,
-                  marginBottom: 10,
-                }}
-              >{tags}</Label>
-              <XStack
-                flexDirection={'row'}
-                alignItems="center"
-                justifyContent="center"
-                space="$4"
-              >
-                <ToggleGroup
-                  orientation={'horizontal'}
-                  type='single'
-                  disableDeactivation
-                >
-                  <ToggleGroup.Item value="Food" onPress={() => {
-                    setTags('Food')
-                  }} >
-                    <Apple />
-                  </ToggleGroup.Item>
-                  <ToggleGroup.Item value="Transportation"
+              <FlatList
+                horizontal
+                data={categoriesList}
+                renderItem={({ item }) => (
+                  <ToggleGroup.Item
+                    value={item.name}
                     onPress={() => {
-                      setTags('Transportation')
-                    }}
-                  >
-                    <Car />
+                      setCategory(item.id)
+                      setCategoryName(item.name)
+                    }}>
+                    {getIconComponent(item.icon)}
                   </ToggleGroup.Item>
-                  <ToggleGroup.Item value="Housing"
-                    onPress={() => {
-                      setTags('Housing')
-                    }}
-                  >
-                    <Home />
-                  </ToggleGroup.Item>
-                  <ToggleGroup.Item value="Study"
-                    onPress={() => {
-                      setTags('Study')
-                    }}
-                  >
-                    <BookOpen />
-                  </ToggleGroup.Item>
-                  <ToggleGroup.Item value="Entertainment"
-                    onPress={() => {
-                      setTags('Entertainment')
-                    }}
-                  >
-                    <Tv />
-                  </ToggleGroup.Item>
-                </ToggleGroup>
-              </XStack>
-            </View>
+                )}
+              />
+            </ToggleGroup>
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
@@ -364,47 +390,31 @@ export function Main() {
             <Button size="$6" circular icon={X} onPress={() => {
               setOpenIncomeSheet(false)
             }} />
-            <View
-              style={{
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
+            <Label style={{ fontFamily: theme.fontFamily.Regular, fontSize: 16, color: 'white' }}>
+              {categoryName}
+            </Label>
+            <ToggleGroup
+              width={46 * categoriesList.length}
+              orientation={'horizontal'}
+              type='single'
+              disableDeactivation
+              backgroundColor={"$colorTransparent"}
             >
-              <Label
-                style={{
-                  color: theme.color.black,
-                  fontFamily: theme.fontFamily.Regular,
-                  fontSize: 16,
-                  marginBottom: 10,
-                }}
-              >{tags}</Label>
-              <XStack
-                flexDirection={'row'}
-                alignItems="center"
-                justifyContent="center"
-                space="$4"
-              >
-                <ToggleGroup
-                  orientation={'horizontal'}
-                  type='single'
-                  disableDeactivation
-                >
-                  <ToggleGroup.Item value="Salary" onPress={() => {
-                    setTags('Salary')
-                  }} >
-                    <DollarSign />
-                  </ToggleGroup.Item>
-                  <ToggleGroup.Item value="Investiments"
+              <FlatList
+                horizontal
+                data={categoriesList}
+                renderItem={({ item }) => (
+                  <ToggleGroup.Item
+                    value={item.name}
                     onPress={() => {
-                      setTags('Investiments')
-                    }}
-                  >
-                    <Activity />
+                      setCategory(item.id)
+                      setCategoryName(item.name)
+                    }}>
+                    {getIconComponent(item.icon)}
                   </ToggleGroup.Item>
-                </ToggleGroup>
-              </XStack>
-            </View>
+                )}
+              />
+            </ToggleGroup>
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
@@ -433,7 +443,7 @@ export function Main() {
               handleNewBalance(incomeValue)
             }} />
           </Sheet.Frame>
-        </Sheet>
+        </Sheet >
         <Button onPress={() => {
           toggleExpenseSheet()
         }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" h="$8" w="$13" borderRadius="$10" iconAfter={<ArrowDownCircle color={theme.color.negative} size="$4" />}>
@@ -452,7 +462,7 @@ export function Main() {
             </Text>
           </View>
         </Button>
-      </View>
+      </View >
       <StatusBar style="dark" />
     </View >
   );
