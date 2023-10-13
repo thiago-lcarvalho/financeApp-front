@@ -1,12 +1,13 @@
 import { StatusBar } from 'expo-status-bar';
-import { ActivityIndicator, Alert, Text, View, Modal, TouchableOpacity } from 'react-native';
-import { Button, Sheet, Input, Checkbox, CheckboxProps, Label, XStack, YStack } from 'tamagui';
-import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Star, Settings, LogOut, PersonStanding, Eye, Check as CheckIcon } from '@tamagui/lucide-icons';
+import { ActivityIndicator, Alert, FlatList, Text, View } from 'react-native';
+import { Button, Sheet, Input, Checkbox, CheckboxProps, Label, XStack, YStack, ToggleGroup } from 'tamagui';
+import { CalendarRange, ArrowUpCircle, ArrowDownCircle, X, Check, Settings, Apple, Car, Home, BookOpen, Tv, DollarSign, Activity, Check as CheckIcon } from '@tamagui/lucide-icons';
 import { useContext, useEffect, useState } from 'react';
 import { theme } from '../../Theme/Theme';
 import AuthContext, { baseUrl } from "../../Contexts/auth";
 import { SettingsMenu, handleLogout } from '../../Components/SettingsMenu';
 import { useNavigation } from '@react-navigation/native';
+
 
 
 
@@ -22,13 +23,17 @@ export function Main() {
   const [incomeValue, setIncomeValue] = useState('');
   const [currentBalance, setCurrentBalance] = useState(0);
   const [datedInvoice, setDatedInvoice] = useState(false);
+  const [categoriesList, setCategoriesList] = useState<any[]>([{}]);
   const navigation = useNavigation<any>()
   let yourDate = new Date()
   const offset = yourDate.getTimezoneOffset()
   yourDate = new Date(yourDate.getTime() - (offset * 60 * 1000))
   const date = yourDate.toISOString().split('T')[0]
+  const [category, setCategory] = useState('')
+  const [categoryName, setCategoryName] = useState('')
 
   useEffect(() => {
+    getCategories()
     getBalance()
   }, [])
 
@@ -44,6 +49,8 @@ export function Main() {
     setOpenExpenseSheet(!openExpenseSheet);
     setInvoiceDescription('');
     setExpenseValue('');
+    setCategory('')
+    setCategoryName('')
     setCustomDate('')
     setDatedInvoice(false)
   };
@@ -52,6 +59,8 @@ export function Main() {
     setOpenIncomeSheet(!openIncomeSheet);
     setInvoiceDescription('');
     setIncomeValue('');
+    setCategory('')
+    setCategoryName('')
     setCustomDate('')
     setDatedInvoice(false)
   };
@@ -140,6 +149,7 @@ export function Main() {
       type: type === 'expense' ? 'LOSS' : 'GAIN',
       actionDate: datedInvoice ? customDate : date,
       userId: auth.user?.id,
+      categoryId: category,
     };
 
     try {
@@ -185,6 +195,64 @@ export function Main() {
       Alert.alert('Erro', error.message);
     }
   };
+
+  function getIconComponent(iconName: string) {
+    switch (iconName) {
+      case 'Apple':
+        return <Apple />;
+      case 'Car':
+        return <Car />;
+      case 'Home':
+        return <Home />;
+      case 'BookOpen':
+        return <BookOpen />;
+      case 'Tv':
+        return <Tv />;
+      default:
+        return null;
+    }
+  }
+
+  const getCategories = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/categories`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${auth.token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      if (response.ok) {
+        const parsedData = await response.json();
+        const tagsData = parsedData.data.categories;
+        setCategoriesList(tagsData);
+      }
+      else if (response.status === 400) {
+        const errorResponse = await response.json();
+        if (Array.isArray(errorResponse.message)) {
+          const errorMessage = `Invalid parameters: ${errorResponse.message.join(', ')}`;
+          Alert.alert('Erro', errorMessage, [
+            { text: 'OK' },
+          ]);
+        }
+      }
+      else {
+        const errorResponse = await response.json();
+        if (errorResponse.statusCode === 401) {
+          Alert.alert('Erro', errorResponse.message, [
+            { text: 'OK' },
+          ]);
+          handleLogout(setAuth, navigation)
+          return
+        }
+        Alert.alert('Erro', errorResponse.message, [
+          { text: 'OK' },
+        ]);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  }
 
   const handleNewBalance = (value: string) => {
     if (value === '' || value === '0') {
@@ -308,6 +376,31 @@ export function Main() {
               </View>
               : null
             }
+            <Label style={{ fontFamily: theme.fontFamily.Regular, fontSize: 16, color: 'white' }}>
+              {categoryName}
+            </Label>
+            <ToggleGroup
+              width={46 * categoriesList.length}
+              orientation={'horizontal'}
+              type='single'
+              disableDeactivation
+              backgroundColor={"$colorTransparent"}
+            >
+              <FlatList
+                horizontal
+                data={categoriesList}
+                renderItem={({ item }) => (
+                  <ToggleGroup.Item
+                    value={item.name}
+                    onPress={() => {
+                      setCategory(item.id)
+                      setCategoryName(item.name)
+                    }}>
+                    {getIconComponent(item.icon)}
+                  </ToggleGroup.Item>
+                )}
+              />
+            </ToggleGroup>
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
@@ -371,6 +464,31 @@ export function Main() {
               </View>
               : null
             }
+            <Label style={{ fontFamily: theme.fontFamily.Regular, fontSize: 16, color: 'white' }}>
+              {categoryName}
+            </Label>
+            <ToggleGroup
+              width={46 * categoriesList.length}
+              orientation={'horizontal'}
+              type='single'
+              disableDeactivation
+              backgroundColor={"$colorTransparent"}
+            >
+              <FlatList
+                horizontal
+                data={categoriesList}
+                renderItem={({ item }) => (
+                  <ToggleGroup.Item
+                    value={item.name}
+                    onPress={() => {
+                      setCategory(item.id)
+                      setCategoryName(item.name)
+                    }}>
+                    {getIconComponent(item.icon)}
+                  </ToggleGroup.Item>
+                )}
+              />
+            </ToggleGroup>
             <Input width={200} style={{ fontFamily: theme.fontFamily.Regular }} placeholder='Descrição' keyboardType='default' keyboardAppearance='dark' value={invoiceDescription} onChangeText={(text) => setInvoiceDescription(text)} />
             <View style={{ flexDirection: 'row' }}>
               <Input
@@ -405,7 +523,7 @@ export function Main() {
               handleNewBalance(incomeValue)
             }} />
           </Sheet.Frame>
-        </Sheet>
+        </Sheet >
         <Button onPress={() => {
           toggleExpenseSheet()
         }} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" h="$8" w="$13" borderRadius="$10" iconAfter={<ArrowDownCircle color={theme.color.negative} size="$4" />}>
@@ -424,7 +542,7 @@ export function Main() {
             </Text>
           </View>
         </Button>
-      </View>
+      </View >
       <StatusBar style="dark" />
     </View >
   );
