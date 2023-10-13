@@ -7,9 +7,8 @@ import { theme } from '../../Theme/Theme';
 import AuthContext, { baseUrl } from "../../Contexts/auth";
 import { SettingsMenu, handleLogout } from '../../Components/SettingsMenu';
 import { useNavigation } from '@react-navigation/native';
-
-
-
+import { CheckboxWithLabel } from '../../Components/CheckboxWithLabel';
+import { Invoice, nextInvoice } from '../../Components/NextInvoice';
 
 export function Main() {
   const { setAuth, auth } = useContext(AuthContext)
@@ -24,6 +23,7 @@ export function Main() {
   const [currentBalance, setCurrentBalance] = useState(0);
   const [datedInvoice, setDatedInvoice] = useState(false);
   const [categoriesList, setCategoriesList] = useState<any[]>([{}]);
+  const [futureInvoice, setFutureInvoice] = useState<any>();
   const navigation = useNavigation<any>()
   let yourDate = new Date()
   const offset = yourDate.getTimezoneOffset()
@@ -36,6 +36,7 @@ export function Main() {
     getCategories()
     getBalance()
   }, [])
+
 
   const openSettings = () => {
     setSettingsVisible(true);
@@ -65,41 +66,14 @@ export function Main() {
     setDatedInvoice(false)
   };
 
-  function CheckboxWithLabel({
-    size,
-    label = 'Accept terms and conditions',
-    ...checkboxProps
-  }: CheckboxProps & { label?: string }) {
-    return (
-      <XStack width={300} alignItems="center" space="$4">
-        <Checkbox size={size}
-          {...checkboxProps}
-          checked={datedInvoice}
-          onCheckedChange={(checked: boolean | "indeterminate") => {
-            if (checked === 'indeterminate')
-              return
-            setDatedInvoice(checked)
-          }}
-        >
-          <Checkbox.Indicator>
-            <CheckIcon />
-          </Checkbox.Indicator>
-        </Checkbox>
-
-        <Label size={size}
-          style={{
-            fontFamily: theme.fontFamily.Regular,
-            color: theme.color.white,
-          }}
-        >
-          Agendar
-        </Label>
-      </XStack>
-    )
-  }
 
   const getBalance = async () => {
     setLoading(true);
+    nextInvoice(auth).then((invoice: Invoice | null | undefined) => {
+      if (invoice) {
+        setFutureInvoice(invoice);
+      }
+    });
     try {
       const response = await fetch(`${baseUrl}/invoices/balance/`, {
         method: 'GET',
@@ -151,7 +125,6 @@ export function Main() {
       userId: auth.user?.id,
       categoryId: category,
     };
-
     try {
       const response = await fetch(`${baseUrl}/invoices`, {
         method: 'POST',
@@ -196,23 +169,6 @@ export function Main() {
     }
   };
 
-  function getIconComponent(iconName: string) {
-    switch (iconName) {
-      case 'Apple':
-        return <Apple />;
-      case 'Car':
-        return <Car />;
-      case 'Home':
-        return <Home />;
-      case 'BookOpen':
-        return <BookOpen />;
-      case 'Tv':
-        return <Tv />;
-      default:
-        return null;
-    }
-  }
-
   const getCategories = async () => {
     try {
       const response = await fetch(`${baseUrl}/categories`, {
@@ -254,7 +210,32 @@ export function Main() {
     }
   }
 
+  function getIconComponent(iconName: string) {
+    switch (iconName) {
+      case 'Apple':
+        return <Apple />;
+      case 'Car':
+        return <Car />;
+      case 'Home':
+        return <Home />;
+      case 'BookOpen':
+        return <BookOpen />;
+      case 'Tv':
+        return <Tv />;
+      default:
+        return null;
+    }
+  }
+
   const handleNewBalance = (value: string) => {
+    if (datedInvoice && customDate === '') {
+      Alert.alert('Erro', 'Data não pode ser vazia em operação agendada');
+      return
+    }
+    if (datedInvoice && category === '') {
+      Alert.alert('Erro', 'Categoria não pode ser vazia em operação agendada');
+      return
+    }
     if (value === '' || value === '0') {
       Alert.alert('Erro', 'Valor não pode ser vazio');
       return
@@ -283,6 +264,27 @@ export function Main() {
 
   // ! Quando adicionar lastBalance
 
+  function formatRemainingTime() {
+    const targetDateStr = futureInvoice?.actionDate
+    const targetDate = new Date(targetDateStr);
+    const currentDate = new Date();
+    const timeDifference = targetDate.getTime() - currentDate.getTime();
+
+    if (timeDifference >= 0) {
+      const oneDay = 24 * 60 * 60 * 1000;
+      const daysRemaining = Math.floor(timeDifference / oneDay);
+
+      if (daysRemaining >= 1) {
+        return `em ${daysRemaining} dia${daysRemaining > 1 ? 's' : ''}`;
+      } else {
+        const hoursRemaining = Math.floor(timeDifference / (60 * 60 * 1000));
+
+        return `em ${hoursRemaining} hora${hoursRemaining > 1 ? 's' : ''}`;
+      }
+    }
+  }
+  const remainingTime = formatRemainingTime();
+
   if (loading)
     return (
       <View style={{ backgroundColor: theme.color.background, flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -303,7 +305,9 @@ export function Main() {
         <View
           style={{ justifyContent: 'space-between', flexDirection: 'column', gap: 12 }}
         >
-          <Button onPress={openSettings} pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Settings color={theme.color.yellow} size="$4" />} />
+          <Button onPress={
+            openSettings
+          } pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Settings color={theme.color.yellow} size="$4" />} />
           <SettingsMenu visible={settingsVisible} onClose={closeSettings} />
         </View>
         <Button
@@ -323,21 +327,32 @@ export function Main() {
           <Text style={{ height: 68, color: theme.color.primary, fontFamily: theme.fontFamily.Thin, fontSize: 56 }}>
             {formattedBalance}
           </Text>
-          {/* <View style={{
-            backgroundColor: theme.color.gray,
-            borderRadius: 10,
-            paddingHorizontal: 6,
-          }}>
-            <Text style={{
-              color: theme.color[balanceStatus],
-              fontSize: 18,
-              fontFamily: theme.fontFamily.Thin,
-              textAlign: 'center'
+          {
+            futureInvoice &&
+            <View style={{
+              backgroundColor: theme.color.gray,
+              borderRadius: 10,
+              paddingHorizontal: 6,
+              flexDirection: 'row',
             }}>
-              {balanceStatus === 'positive' ? '+ ' : '- '}{balanceSurplus}{` (${newBalancePercentage}%)`}
-            </Text>
-          </View> */}
-          {/* Quando adicionar lastBalance */}
+              <Text style={{
+                color: theme.color.white,
+                fontSize: 18,
+                fontFamily: theme.fontFamily.Thin,
+                textAlign: 'center'
+              }}>
+                {`${futureInvoice?.description}${remainingTime} `}
+              </Text>
+              <Text style={{
+                color: futureInvoice?.type === 'LOSS' ? theme.color.negative : theme.color.positive,
+                fontSize: 18,
+                fontFamily: theme.fontFamily.Thin,
+                textAlign: 'center'
+              }}>
+                {`${futureInvoice.type === 'LOSS' ? ' -' : ' +'} R$ ${futureInvoice?.value}`}
+              </Text>
+            </View>
+          }
         </View>
       </View>
       <View
@@ -361,7 +376,7 @@ export function Main() {
           />
           <Sheet.Handle />
           <Sheet.Frame padding="$4" justifyContent="flex-start" alignItems="center" space="$5" backgroundColor={theme.color.negative}>
-            <CheckboxWithLabel size="$4" />
+            <CheckboxWithLabel datedInvoice={datedInvoice} setDatedInvoice={setDatedInvoice} size="$4" />
             <Button size="$6" circular icon={X} onPress={() => {
               toggleExpenseSheet()
             }} />
@@ -449,7 +464,7 @@ export function Main() {
           />
           <Sheet.Handle />
           <Sheet.Frame padding="$4" justifyContent="flex-start" alignItems="center" space="$5" backgroundColor={theme.color.positive}>
-            <CheckboxWithLabel size="$4" />
+            <CheckboxWithLabel datedInvoice={datedInvoice} setDatedInvoice={setDatedInvoice} size="$4" />
             <Button size="$6" circular icon={X} onPress={() => {
               toggleIncomeSheet()
             }} />
