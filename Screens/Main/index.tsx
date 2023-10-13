@@ -8,7 +8,7 @@ import AuthContext, { baseUrl } from "../../Contexts/auth";
 import { SettingsMenu, handleLogout } from '../../Components/SettingsMenu';
 import { useNavigation } from '@react-navigation/native';
 import { CheckboxWithLabel } from '../../Components/CheckboxWithLabel';
-import { Invoice, nextInvoice } from '../../Components/NextInvoice';
+import { Invoice, futureInvoiceList } from '../../Components/NextInvoice';
 
 export function Main() {
   const { setAuth, auth } = useContext(AuthContext)
@@ -37,14 +37,23 @@ export function Main() {
     getBalance()
   }, [])
 
-
-  const openSettings = () => {
-    setSettingsVisible(true);
+  const findNextInvoice = (invoices: Invoice[]) => {
+    const currentDate = new Date();
+    const futureInvoices = invoices.filter((invoice: Invoice) => {
+      const invoiceDate = new Date(invoice.actionDate);
+      return invoiceDate > currentDate;
+    });
+    futureInvoices.sort((a, b) => {
+      const dateA = new Date(a.actionDate).getTime();
+      const dateB = new Date(b.actionDate).getTime();
+      return dateA - dateB;
+    });
+    return futureInvoices.length > 0 ? futureInvoices[0] : null;
   };
 
-  const closeSettings = () => {
-    setSettingsVisible(false);
-  };
+  const toggleSettings = () => {
+    setSettingsVisible(!settingsVisible);
+  }
 
   const toggleExpenseSheet = () => {
     setOpenExpenseSheet(!openExpenseSheet);
@@ -66,14 +75,16 @@ export function Main() {
     setDatedInvoice(false)
   };
 
-
   const getBalance = async () => {
     setLoading(true);
-    nextInvoice(auth).then((invoice: Invoice | null | undefined) => {
-      if (invoice) {
-        setFutureInvoice(invoice);
+    futureInvoiceList(auth).then((invoices: Invoice[] | null | undefined) => {
+      if (invoices) {
+        const nextInvoice = findNextInvoice(invoices);
+        if (nextInvoice) {
+          setFutureInvoice(nextInvoice);
+        }
       }
-    });
+    })
     try {
       const response = await fetch(`${baseUrl}/invoices/balance/`, {
         method: 'GET',
@@ -306,11 +317,14 @@ export function Main() {
           style={{ justifyContent: 'space-between', flexDirection: 'column', gap: 12 }}
         >
           <Button onPress={
-            openSettings
+            toggleSettings
           } pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<Settings color={theme.color.yellow} size="$4" />} />
-          <SettingsMenu visible={settingsVisible} onClose={closeSettings} />
+          <SettingsMenu visible={settingsVisible} onClose={toggleSettings} />
         </View>
         <Button
+          onPress={
+            () => navigation.navigate('History')
+          }
           pressStyle={{ backgroundColor: '$gray1Dark' }} bg="$gray3Dark" width="$5" size="$6" icon={<CalendarRange color={theme.color.yellow} size="$4" />} />
       </View>
       <View style={{

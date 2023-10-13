@@ -9,22 +9,7 @@ export interface Invoice {
     value: number;
 }
 
-const findNextInvoice = (invoices: Invoice[]) => {
-    const currentDate = new Date();
-    const futureInvoices = invoices.filter((invoice: Invoice) => {
-        const invoiceDate = new Date(invoice.actionDate);
-        return invoiceDate > currentDate;
-    });
-    futureInvoices.sort((a, b) => {
-        const dateA = new Date(a.actionDate).getTime();
-        const dateB = new Date(b.actionDate).getTime();
-        return dateA - dateB;
-    });
-    return futureInvoices.length > 0 ? futureInvoices[0] : null;
-};
-
-
-export const nextInvoice = async (auth: Auth) => {
+export const futureInvoiceList = async (auth: Auth) => {
     const date = new Date();
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
@@ -47,8 +32,8 @@ export const nextInvoice = async (auth: Auth) => {
                     value: invoice.value,
                 };
             });
-            const nextInvoice = findNextInvoice(parsedData);
-            return nextInvoice;
+            const futureInvoices = parsedData;
+            return futureInvoices;
         }
         else if (response.status === 400) {
             const errorResponse = await response.json();
